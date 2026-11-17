@@ -1,0 +1,1248 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PiTLI — Process in Technology Line Interface</title>
+<!-- Prezentacja demo PiTLI (Process in Technology Line Interface), opartego na koncepcie DaaC — Department as a Codebase. Styl „Precyzja” (szablon: ~/.claude/modes/artefakty/szablon.html).
+     Scena 3D i dane: na wzór ~/Projects/artefakty/mapa-firmy-3d (dane przykładowe w dane.js).
+     Terminologia: ~/Projects/artefakty/model-procesow. Nawigacja: ← → spacja, #N albo #N.K w adresie. -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2309090B'/><rect x='7' y='7' width='18' height='18' rx='4' fill='none' stroke='%238B8EF9' stroke-width='2.4'/><circle cx='20' cy='20' r='3' fill='%234ADE80'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styl.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- poświata (bloom): dodatki z examples r128; gdy się nie wczytają, scena renderuje się bez niej -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="7" y="7" width="18" height="18" rx="4" fill="none" stroke="currentColor" stroke-width="2.4" style="color:var(--accent)"/><circle cx="20" cy="20" r="3" style="fill:var(--ok)"/></svg><div>PiTLI<span>Process in Technology Line Interface</span></div></div>
+    <nav id="menu" aria-label="Slajdy"></nav>
+    <div class="foot">Dane przykładowe · 13 lis 2026</div>
+  </aside>
+
+  <main id="scena">
+    <div id="etykiety"></div>
+    <!-- widok działu z aplikacji: procesy i etapy działu jako tory (budowany w JS z dane.js) -->
+    <div class="wd" id="wd" hidden></div>
+
+    <section class="slajd" data-id="tytul" data-t="PiTLI">
+      <div class="tresc srodek gora">
+        <div class="oko w" style="--i:0">Autonomiczny dział procesów w Twojej firmie</div>
+        <h1 class="pitli" aria-label="PiTLI"><span class="lit ak" style="--l:0">P<small>procesy</small></span><span class="lit" style="--l:1">i</span><span class="lit ak" style="--l:2">T<small>technologia</small></span><span class="lit" style="--l:3">L</span><span class="lit" style="--l:4">I</span></h1>
+        <div class="pod rozw"><span style="--l:0"><b>P</b>rocess</span> <span style="--l:1"><b>i</b>n</span> <span style="--l:2"><b>T</b>echnology</span> <span style="--l:3"><b>L</b>ine</span> <span style="--l:4"><b>I</b>nterface</span></div>
+        <p class="w" style="--i:14">Oprogramowanie z „pracownikami” AI, które przy małej uwadze ludzi samo zbiera wiedzę o procesach, uzupełnia ją i pilnuje, żeby była kompletna.</p>
+        <div class="koncept w" style="--i:17">oparte na koncepcie <b>Department as a Codebase</b> (DaaC)</div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="dlakogo" data-t="Dla kogo">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Dla kogo</div>
+        <h2 class="w" style="--i:1">Potrzeby COO i CTO na jednej mapie.</h2>
+        <p class="w" style="--i:3">Procesy i technologia w jednym miejscu: wspólna rzeczywistość dla operacji i IT. Także dla zarządów i dyrektorów wysokiego szczebla.</p>
+      </div>
+      <div class="p-dol panel goly">
+        <div class="dla">
+          <div class="panel dla-rola w" id="dla-coo" style="position:static;--i:5"><span class="lbl">COO</span><b>Procesy</b><span>kto co robi, kto na kogo czeka, gdzie praca staje</span></div>
+          <div class="dla-plus w" style="--i:6">+</div>
+          <div class="panel dla-rola w" id="dla-cto" style="position:static;--i:7"><span class="lbl">CTO</span><b>Technologia</b><span>w jakich programach, gdzie dane przepisuje się ręcznie</span></div>
+          <div class="dla-plus w" style="--i:8">=</div>
+          <div class="panel dla-rola razem w" style="position:static;--i:9"><span class="lbl">Zarząd i dyrektorzy</span><b>Wspólna rzeczywistość</b><span>jedna mapa zamiast dwóch wersji firmy</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="problem" data-t="Problem">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Problem</div>
+        <h2 class="w" style="--i:1">Ktoś poszedł na urlop. Proces stanął.</h2>
+        <p class="w" style="--i:3">Nikt tego nie spisał. Faktura czeka, a wiedza o etapie wyjechała razem z człowiekiem.</p>
+      </div>
+      <div class="panel p-ld w" style="--i:6">
+        <span class="lbl">Proces FIN-03 · Obieg faktury kosztowej</span>
+        <h3 style="margin-top:6px">Etap E3 · Akceptacja <span class="etk bad">stoi</span></h3>
+        <span class="muted" style="font-size:var(--fs-s)">Kierownik budżetu wraca za dwa tygodnie. Faktura FV/2026/11/0412 (przykładowa) czeka.</span>
+      </div>
+    </section>
+    <section class="slajd" data-id="definicja" data-t="Etap: Definicja">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Etap: Definicja</div>
+        <h2 class="w" style="--i:1">Ten sam etap, spisany.</h2>
+        <p class="w" style="--i:3">Wchodzimy do środka etapu. <b>Definicja</b> mówi, co w nim jest: kroki z programami i danymi, role, wiedza, ryzyka.</p>
+      </div>
+      <div class="panel p-prawy w" style="--i:4;width:min(500px,36%)">
+        <div class="sk-nagl"><h3><code style="color:var(--accent)">FIN-03 · E3</code> Akceptacja</h3><span class="ile"><b>9</b> / 9 składowych Definicji</span><span class="etk ok">wiedza spisana</span></div>
+        <div class="sk-det" id="sk3-det"></div>
+      </div>
+      <div class="p-ld panel goly w szeroki" style="--i:7;width:min(560px,46%)">
+        <div class="odp" id="odp"></div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="zoom" data-t="Zoom out" data-kroki="4">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Zoom out</div>
+        <h2 class="w" style="--i:1">Od etapu do całej firmy.</h2>
+        <p class="w" style="--i:3">Etap należy do działu. Etapy składają się w proces, procesy — w rejestr firmy. Kolor mówi, ile o etapie wiemy: <span class="etk ok">komplet</span> <span class="etk warn">brakuje ważnych</span> <span class="etk bad">brakuje wymaganych</span></p>
+      </div>
+      <div class="p-ld panel goly w" style="--i:5;width:max-content;max-width:calc(100% - 80px)">
+        <div class="okruszki" id="okruszki"></div>
+        <div class="panel poziom" style="position:static" id="poziom"></div>
+      </div>
+    </section>
+    <section class="slajd" data-id="wykonawcy" data-t="Kto dziś wykonuje pracę">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Kto dziś wykonuje pracę</div>
+        <h2 class="w" style="--i:1">Ludzie, programy i AI. Już dziś.</h2>
+        <p class="w" style="--i:3">Każdy etap ma wykonawcę: człowieka, człowieka z programem, człowieka z asystentem AI albo agenta. PiTLI pokazuje ten miks, zanim cokolwiek zmienimy.</p>
+      </div>
+      <div class="panel p-prawy dol w" style="--i:5;width:min(440px,40%)">
+        <span class="lbl">Wykonawca etapu · cała firma</span>
+        <div class="aut" id="wyk"></div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="rzecz" data-t="Trzy rzeczywistości" data-kroki="3">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Trzy rzeczywistości</div>
+        <h2 class="w" style="--i:1">Jedna firma, trzy mapy.</h2>
+        <p data-tylko="1"><b>Procesowa.</b> Procesy przechodzą między działami i zasilają się nawzajem danymi.</p>
+        <div class="wnioski" data-tylko="1"><span>Co z tego wyczytujemy</span><ul><li><b>Kto na kogo czeka.</b> Proces, który zasila kilka innych, to wąskie gardło — tu urlop jednej osoby zatrzymuje pół firmy.</li><li><b>Gdzie wiedza wisi na jednej osobie.</b> Etapy z brakami M w procesach między działami to ryzyko przestoju do zaadresowania w pierwszej kolejności.</li></ul></div>
+        <p data-tylko="2"><b>Technologiczna.</b> W jakich programach dzieje się praca. Przeskok między programami to integracja albo ręczne przepisywanie. Wyspa — program bez integracji.</p>
+        <div class="wnioski" data-tylko="2"><span>Co z tego wyczytujemy</span><ul><li><b>Gdzie ludzie przepisują dane ręcznie.</b> Każdy przeskok bez integracji to czas i błędy — gotowa lista kandydatów do automatyzacji.</li><li><b>Od czego firma zależy.</b> Program, na którym stoi najwięcej etapów, i wyspy (Excele, stare systemy) poza obiegiem — wejście do planu ciągłości i decyzji IT.</li></ul></div>
+        <p data-tylko="3"><b>Danych.</b> Jakie struktury danych żyją w programach i jak między nimi płyną: automatem albo ręcznie.</p>
+        <div class="wnioski" data-tylko="3"><span>Co z tego wyczytujemy</span><ul><li><b>Gdzie ta sama informacja żyje w kilku miejscach.</b> Dane, które się rozjeżdżają, to źródło sporów, korekt i złych decyzji.</li><li><b>Kto konsumuje dane.</b> Zmiana jednej struktury od razu pokazuje, które procesy i działy dotknie — zanim coś się posypie.</li></ul></div>
+      </div>
+      <div class="p-ld panel goly w" style="--i:5;width:max-content;max-width:calc(100% - 80px)">
+        <div class="seg" id="rzecz" role="tablist" aria-label="Rzeczywistość"><button data-k="1">Procesy</button><button data-k="2">Technologia</button><button data-k="3">Dane</button></div>
+        <div class="panel" style="position:static;margin-top:var(--s3)"><div class="liczby" id="rzecz-liczby"></div></div>
+      </div>
+    </section>
+    <section class="slajd" data-id="apd" data-t="Nowy dział: APD">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Nowy dział</div>
+        <h2 class="w" style="--i:1">APD: czterech pracowników AI.</h2>
+        <p class="w" style="--i:3"><b>Autonomous Process Department</b> — autonomiczny dział procesów. Nie produkuje i nie sprzedaje. Pilnuje, żeby wiedza o firmie była spisana i aktualna.</p>
+      </div>
+      <div class="panel p-prawy w" style="--i:5">
+        <div class="org">
+          <div class="gora">
+            <div class="rola ludzie"><b>Ludzie w firmie</b><span>szefowie działów, wykonawcy etapów, nowi pracownicy · rozmawiają tylko z dwoma agentami</span></div>
+            <div class="rola gl"><b><span class="awatar duzy"><span class="oczy"><i></i><i></i></span></span>Opiekun działu</b><em class="etk accent kontakt">kontakt z ludźmi</em><span>Prowadzę APD i rozmawiam z ludźmi. Rozjazdy zgłaszam COO.</span><em class="kiedy"><i>Spotkasz mnie</i>gdy zadzwonię albo napiszę na czacie czy mailu z krótkim pytaniem o Twoją pracę.</em></div>
+            <div class="rola gl"><b><span class="awatar"><span class="oczy"><i></i><i></i></span></span>Agent wdrożeniowy</b><em class="etk accent kontakt">kontakt z ludźmi</em><span>Odpowiadam każdemu, kto chce się czegoś dowiedzieć, na podstawie wszystkich procesów i całej technologii firmy.</span><em class="kiedy"><i>Spotkasz mnie</i>pierwszego dnia w pracy i zawsze, gdy pytasz, jak coś się u nas robi.</em></div>
+          </div>
+          <div class="dol">
+            <div class="tlo-lbl">w tle, bez kontaktu z ludźmi</div>
+            <div class="rola"><b><span class="awatar"><span class="oczy"><i></i><i></i></span></span>Projektant procesu</b><span>Rozpisuję procesy i z odpowiedzi ludzi uzupełniam braki: najpierw wymagane, potem ważne.</span><em class="kiedy"><i>Spotkasz mnie</i>gdy jesteś właścicielem etapu i zatwierdzasz moją propozycję zapisu.</em></div>
+            <div class="rola"><b><span class="awatar"><span class="oczy"><i></i><i></i></span></span>Analityk braków</b><span>Szukam luk, rozjazdów i wysp na całej mapie.</span><em class="kiedy"><i>Spotkasz mnie</i>rzadko: pracuję w tle, moje znaleziska przekazuje Opiekun działu.</em></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="slajd" data-id="ludzie" data-t="Jak pracuje z ludźmi">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Praca z ludźmi</div>
+        <h2 class="w" style="--i:1">Kilka minut zamiast warsztatów.</h2>
+        <p class="w" style="--i:3">Krótkie interakcje tam, gdzie człowiek już jest. Z odpowiedzi APD sam uzupełnia dokumentację.</p>
+        <p class="w" style="--i:4">W ramach wdrożenia podpinamy dowolny komunikator, z którego korzysta firma. <b>Zalecamy czat, mail i telefon jednocześnie</b> — każdy odpowiada tam, gdzie mu najwygodniej.</p>
+      </div>
+      <div class="p-dol panel goly">
+        <div class="kanaly">
+          <div class="panel kanal w" style="position:static;--i:5"><div class="g"><b>Czat</b><span class="etk accent">zalecane</span></div><p>W aplikacji albo w Claude. Jedno pytanie na raz, z opcjami.</p><div class="probka">Gdzie kierownik widzi faktury do akceptacji?</div></div>
+          <div class="panel kanal w" style="position:static;--i:6"><div class="g"><b>Mail</b><span class="etk accent">zalecane</span></div><p>Prosi o linki i screenshoty. Odpowiadasz, kiedy masz chwilę.</p><div class="probka">Podeślij link do macierzy limitów i zrzut ekranu akceptacji.</div></div>
+          <div class="panel kanal w" style="position:static;--i:7"><div class="g"><b>Telefon</b><span class="etk accent">zalecane</span></div><p>2–3 proste pytania, 3 minuty. Dla tych, którzy wolą mówić.</p><div class="probka">Mam trzy krótkie pytania o akceptację faktur.</div></div>
+          <div class="strz w" style="--i:8">→</div>
+          <div class="panel kanal wynik w" style="position:static;--i:9"><div class="g"><b>Dokumentacja</b></div><ul><li>uzupełnione składowe etapu</li><li>braki i kompletność policzone od nowa</li><li>mapa aktualna bez spotkań</li></ul></div>
+        </div>
+      </div>
+    </section>
+    <section class="slajd" data-id="rozjazdy" data-t="Rozjazdy">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Rozjazdy</div>
+        <h2 class="w" style="--i:1">Dwie osoby, dwie wersje tego samego etapu.</h2>
+        <p class="w" style="--i:3">Opiekun działu nie zgaduje, kto ma rację. Sygnalizuje właścicielowi firmy albo COO, że trzeba rozstrzygnąć.</p>
+      </div>
+      <div class="p-prawy dol panel goly">
+        <div class="rozj">
+          <div class="panel wersja w" style="position:static;--i:4"><div class="kto">Kierownik budżetu <small>· wersja A</small></div><dl><div><dt>gdzie</dt><dd>ERP, ekran akceptacji</dd></div><div class="inne"><dt>próg</dt><dd>druga akceptacja od 50 000 zł</dd></div><div class="inne"><dt>termin</dt><dd>2 dni robocze</dd></div></dl></div>
+          <div class="panel wersja w" style="position:static;--i:6"><div class="kto">Księgowa <small>· wersja B</small></div><dl><div><dt>gdzie</dt><dd>ERP, ekran akceptacji</dd></div><div class="inne"><dt>próg</dt><dd>druga akceptacja od 20 000 zł</dd></div><div class="inne"><dt>termin</dt><dd>„jak kierownik znajdzie czas”</dd></div></dl></div>
+          <div class="panel sygnal" style="position:static"><span class="awatar duzy"><span class="oczy"><i></i><i></i></span></span><div class="tx"><b>Opiekun działu → COO</b><span>Etap E3 Akceptacja: dwie wersje progu i terminu. Która obowiązuje?</span></div><div class="opc"><span class="etk">wersja A</span><span class="etk">wersja B</span><span class="etk warn">do rozstrzygnięcia</span></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="slajd" data-id="wersje" data-t="Procesy żyją">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Procesy żyją</div>
+        <h2 class="w" style="--i:1">Każda zmiana ma wersję i datę.</h2>
+        <p class="w" style="--i:3">Etapy, procesy, przepisy, programy i struktury danych mają historię. Zawsze wiadomo, co obowiązuje i od kiedy.</p>
+      </div>
+      <div class="p-dol panel w" style="--i:4">
+        <div class="os-nagl"><span class="lbl">Historia etapu · FIN-03 E3 Akceptacja · przykład</span><span class="os-teraz">obowiązuje <b>wersja 2</b> od 1.02.2026</span></div>
+        <div class="os">
+          <div class="os-linia"></div>
+          <div class="os-p duza" style="--x:4%;--k:0"><i></i><b>wersja 1</b><span>od 1.09.2025<br>etap spisany</span></div>
+          <div class="os-p" style="--x:22%;--k:1"><i></i><b>drobna zmiana</b><span>nowy link do macierzy limitów</span></div>
+          <div class="os-p przepis" style="--x:40%;--k:2"><i></i><b>zmiana przepisu</b><span>regulamin podpisywania dokumentów</span></div>
+          <div class="os-p duza teraz" style="--x:62%;--k:3"><i></i><b>wersja 2</b><span>od 1.02.2026<br>nowy próg i druga akceptacja</span></div>
+          <div class="os-p" style="--x:82%;--k:4"><i></i><b>drobna zmiana</b><span>nowy zrzut ekranu ERP</span></div>
+        </div>
+        <div class="os-3">
+          <div class="w" style="--i:9"><b>Duża zmiana = nowa wersja</b><span>Ludzie pracują inaczej, więc trzeba ich przeszkolić. Numer nadaje człowiek.</span><em class="etk warn">do przeszkolenia: Kierownik budżetu, Kontroler finansowy</em></div>
+          <div class="w" style="--i:10"><b>Drobne zmiany liczą się same</b><span>System odczytuje je z historii. Nikt niczego nie wpisuje.</span></div>
+          <div class="w" style="--i:11"><b>Zmienia się przepis → lista etapów</b><span>Przepis jest w bibliotece raz. Od razu widać, kogo dotyczy:</span><em class="etk accent">FIN-03 E3 Akceptacja</em> <em class="etk accent">FIN-03 E4 Księgowanie</em> <em class="etk accent">PRA-01 E3 Akceptacja</em></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="agent" data-t="Wszystko przez agenta">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Bez formularzy</div>
+        <h2 class="w" style="--i:1">Wszystko przez agenta.</h2>
+        <p class="w" style="--i:3">W PiTLI nie ma przycisku „dodaj formularz”. Mówisz albo piszesz, wrzucasz linki i zdjęcia — agent w aplikacji agreguje i proponuje zmiany. Te same drzwi są otwarte dla agentów z zewnątrz.</p>
+      </div>
+      <div class="panel p-prawy w" style="--i:4;width:min(470px,40%)">
+        <div class="czat">
+          <div class="dymek ag" style="--j:0"><div class="kto"><span class="awatar"><span class="oczy"><i></i><i></i></span></span>Projektant procesu</div>W etapie E3 Akceptacja brakuje progu drugiej akceptacji. Od jakiej kwoty faktura idzie do kontrolera?<div class="opcje"><span class="wyb">50 000 zł brutto</span><span>20 000 zł</span><span>nie wiem, zapytaj kontrolera</span></div></div>
+          <div class="dymek ja" style="--j:1">Od 50 tysięcy brutto. Wrzucam regulamin.<br><span class="zal">link · regulamin podpisywania dokumentów</span></div>
+          <div class="dymek ag" style="--j:2"><div class="kto"><span class="awatar"><span class="oczy"><i></i><i></i></span></span>Projektant procesu</div>Proponuję: Kroki → krok 4, bramka „brutto powyżej 50 000 zł”. Podstawy prawne → regulamin. Zapisać?<div class="opcje"><span class="wyb">zapisz</span><span>popraw</span></div></div>
+          <div class="dymek zapis" style="--j:3">zapisano: etap E3 — uzupełniono Definicję</div>
+        </div>
+        <div class="pole">Napisz albo powiedz…<span class="ik"><span>mikrofon</span><span>link</span><span>zdjęcie</span></span></div>
+      </div>
+      <div class="p-ld panel w" style="--i:6;width:min(760px,calc(58% - 40px))">
+        <div class="hub">
+          <div class="hub-kol"><span class="lbl">Ty</span><span class="hub-chip">głos</span><span class="hub-chip">tekst</span><span class="hub-chip">linki</span><span class="hub-chip">zdjęcia</span></div>
+          <div class="lacze"></div>
+          <div class="hub-srodek"><span class="lbl">PiTLI</span><b><span class="awatar duzy"><span class="oczy"><i></i><i></i></span></span>Agent w aplikacji</b><span>Każda zmiana przechodzi przez niego: agreguje, proponuje, zapisuje.</span><div class="hub-rdzen">procesy · technologia · dane</div></div>
+          <div class="lacze wstecz"></div>
+          <div class="hub-kol zew"><span class="lbl">Agenci z zewnątrz</span><div class="hub-zew"><b>Claude</b><span><i class="etk accent">CLI</i> <i class="etk accent">skille</i> <i class="etk accent">agenci</i></span></div><div class="hub-zew"><b>Inni agenci</b><span><i class="etk accent">MCP</i> <i class="etk accent">CLI</i></span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="odwiedzy" data-t="Od wiedzy do AI" data-kroki="2">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Od wiedzy do AI</div>
+        <h2 class="w" style="--i:1">Najpierw wiedza. Potem AI.</h2>
+        <p data-tylko="1"><b>Przebieg</b> dopisuje, gdzie etap widać w programach: skąd wziąć wejście, gdzie ląduje wynik, gdzie jest log.</p>
+        <p data-tylko="2"><b>Delegowanie na AI</b> mówi, kto wykonuje każdy krok. Tego brakuje, żeby etap dało się oddać agentowi.</p>
+      </div>
+      <div class="panel p-prawy w" style="--i:4;width:min(430px,31%)">
+        <div class="sk-nagl"><h3><code style="color:var(--accent)">FIN-03 · E3</code> Akceptacja</h3><span class="ile"><b>13</b> / 19 składowych</span><span class="etk" id="sk10-stan"></span></div>
+        <div class="sk-det" id="sk10-det"></div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="przekroj" data-t="Przekrój etapu z agentem" data-kroki="3">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Przekrój etapu z agentem</div>
+        <h2 class="w" style="--i:1">„Uzupełnij, co wiesz.”</h2>
+        <p class="w" style="--i:3">Agent wyprowadza brakujące składowe z tego, co już spisane. Ty akceptujesz.</p>
+      </div>
+      <div class="panel p-prawy w" style="--i:4;width:min(430px,31%)">
+        <div class="czat">
+          <div class="dymek ja" style="--j:0">Uzupełnij, co wiesz o delegowaniu tego etapu.</div>
+          <div class="dymek ag" data-krok="2" style="--j:0"><div class="kto"><span class="awatar"><span class="oczy"><i></i><i></i></span></span>Projektant procesu</div>Z Definicji i Przebiegu wyprowadzam cztery składowe:
+            <div class="prop"><div><b>Kto robi który krok</b><span>kroki 1, 2, 4, 6 — AI samodzielnie · kroki 3, 5 — człowiek</span><small>z Kroków i Ról</small></div><div><b>Granice dla AI</b><span>3 zakazy, np. „nie akceptuje za człowieka”</span><small>z Zarządzania ryzykiem</small></div><div><b>Instrukcja dla AI</b><span>gotowa instrukcja „akceptacja kosztu”</span><small>z Wiedzy, Kroków i Przebiegu</small></div><div><b>Agent</b><span>AGT-obieg-faktur</span><small>z biblioteki agentów</small></div></div>
+            Miary zostawiam na później: mierzymy, gdy etap popracuje.<div class="opcje"><span class="wyb">akceptuję</span><span>popraw</span></div></div>
+          <div class="dymek ja" data-krok="3" style="--j:0">Akceptuję.</div>
+          <div class="dymek zapis" data-krok="3" style="--j:3">zapisano: etap E3 — uzupełniono Delegowanie na AI · 17 / 19</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="gotowosc" data-t="Gotowość na AI">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Gotowość na AI</div>
+        <h2 class="w" style="--i:1">Na ile procesy są gotowe na AI?</h2>
+        <p class="w" style="--i:3">Widać, kto wykonuje każdy etap i które mają już dość spisanej wiedzy, żeby oddać je AI. AI sam proponuje — człowiek zatwierdza.</p>
+      </div>
+      <div class="panel p-prawy dol w" style="--i:5;width:min(440px,40%)">
+        <span class="lbl">Kto wykonuje · etapy całej firmy</span>
+        <div class="aut" id="aut"></div>
+        <div class="gotowe" id="gotowe"></div>
+        <div class="blok" id="blok" style="margin-top:var(--s2)"></div>
+      </div>
+    </section>
+    <section class="slajd" data-id="zap1" data-t="Punkty zapalne: procesy" data-kroki="2">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Punkty zapalne · procesy</div>
+        <h2 class="w" style="--i:1">Gdzie najpierw porządkujemy.</h2>
+        <p class="w" style="--i:3">Mapa sama wskazuje działy, w których o pracy wiemy najmniej. Tu zaczynamy, zanim cokolwiek oddamy AI.</p>
+      </div>
+      <div class="panel p-prawy dol w" style="--i:5;width:min(440px,38%)" id="zap1-panel"></div>
+    </section>
+
+    <section class="slajd" data-id="zap2" data-t="Punkty zapalne: technologia i dane" data-kroki="3">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Punkty zapalne · technologia i dane</div>
+        <h2 class="w" style="--i:1">Od czego firma zależy.</h2>
+        <p data-tylko="1">Jeden program, przez który przechodzi najwięcej pracy. Jego awaria albo wymiana dotyka całej firmy.</p>
+        <p data-tylko="2">Wyspy: programy, które z niczym nie rozmawiają automatycznie. Wszystko, co do nich trafia, ktoś przenosi ręcznie.</p>
+        <p data-tylko="3">Te same dane przepisywane ręcznie w kilku miejscach. Tu powstają rozjazdy i błędy.</p>
+      </div>
+      <div class="panel p-prawy dol w" style="--i:5;width:min(440px,38%)" id="zap2-panel"></div>
+    </section>
+
+    <section class="slajd" data-id="zap3" data-t="Punkty zapalne: ludzie i AI" data-kroki="3">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Punkty zapalne · ludzie i AI</div>
+        <h2 class="w" style="--i:1">Od czego zacząć z AI.</h2>
+        <p data-tylko="1">Działy, w których nie pracuje dziś żaden agent AI.</p>
+        <p data-tylko="2">Dział, w którym najwięcej etapów ludzie wykonują bez wsparcia AI.</p>
+        <p data-tylko="3">Ranking dla zarządu: dużo pracy bez AI i procesy na tyle spisane, że można zacząć od razu.</p>
+      </div>
+      <div class="panel p-prawy dol w" style="--i:5;width:min(440px,38%)" id="zap3-panel"></div>
+    </section>
+
+    <section class="slajd" data-id="sprzet" data-t="Co jest potrzebne">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Co jest potrzebne w firmie</div>
+        <h2 class="w" style="--i:1">Mac albo Twój serwer. I ⅓ etatu programisty.</h2>
+        <p class="w" style="--i:3" id="prywatnosc"></p>
+      </div>
+      <div class="panel p-ld w" style="--i:5;width:min(620px,calc(100% - 80px))">
+        <div class="mac-spec"><b>Mac mini</b><span>M5 Pro (18 CPU, 20 GPU) · 64 GB RAM · 2 TB</span><em class="etk ok">sprzęt w cenie</em></div>
+        <div class="mac-cena">Najmocniejszy Mac mini, ok. 3,7 tys. USD — wliczony w cenę PiTLI. Masz już serwer o podobnej konfiguracji? Instalujemy PiTLI na nim.</div>
+        <div class="mac-3"><div><i>1</i><b>Wszystko już na nim jest</b><span>mapa, agenci, dokumentacja</span></div><div><i>2</i><b>Podpinasz do swojej sieci</b><span>dowolnej, tam gdzie chcesz</span></div><div><i>3</i><b>Zabezpieczasz po swojemu</b><span>Twoje zasady, Twoja kontrola</span></div></div>
+        <div class="dla-etat"><b>⅓<small>etatu</small></b><span><strong>Jeden programista na ok. ⅓ etatu</strong> po Waszej stronie: utrzymuje PiTLI w Waszej sieci i podpina je do Waszych programów.</span></div>
+      </div>
+    </section>
+
+    <section class="slajd" data-id="start" data-t="Jak zaczynamy" data-kroki="6">
+      <div class="tresc">
+        <div class="oko w" style="--i:0">Jak zaczynamy</div>
+        <h2 class="w" style="--i:1">Onboarding: od firmy do pierwszej mapy.</h2>
+        <p class="w" style="--i:3">Kilka pytań na start. Potem już tylko rozmowy.</p>
+      </div>
+      <div class="p-dol panel goly w" style="--i:5"><div class="kroki-on" id="kroki-on"></div></div>
+    </section>
+    <section class="slajd" data-id="cta" data-t="Zaproszenie do testów">
+      <div class="tresc srodek">
+        <div class="oko w" style="--i:0">Zaproszenie</div>
+        <h2 class="w" style="--i:1;font-size:clamp(40px,5.6vw,84px)">Przetestuj PiTLI na swoim dziale.</h2>
+        <p class="w" style="--i:3">Szukamy firm do testów. Jeden dział, kilka krótkich rozmów — i mapa procesów, która uzupełnia się sama.</p>
+        <div class="w" style="--i:5" id="cta-miejsce"></div>
+        <div class="cta-3 w" style="--i:7"><div><b>1 · Onboarding</b>firma, działy, pierwsza mapa</div><div><b>2 · Rozmowy</b>kilka minut na raz, bez formularzy</div><div><b>3 · Mapa</b>procesy, programy i dane w jednym miejscu</div></div>
+      </div>
+    </section>
+    <div class="ster">
+      <button id="wstecz" aria-label="Wstecz"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 6 10l6 6"/></svg></button>
+      <span class="licznik"><b id="nr">1</b> / <span id="ile">21</span></span>
+      <span class="kropki" id="kropki"></span>
+      <button id="dalej" aria-label="Dalej"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l6 6-6 6"/></svg></button>
+    </div>
+    <div class="podp"><kbd>←</kbd> <kbd>→</kbd> <kbd>spacja</kbd></div>
+    <div class="postep"><i id="postep"></i></div>
+  </main>
+</div>
+
+<script src="dane.js"></script>
+<script>
+// cel przycisku na ostatnim slajdzie (mailto: albo adres formularza); pusty — przycisk jest tylko wezwaniem
+const CTA_URL = '';
+// zdanie o prywatności na slajdzie „Przychodzi z własnym sprzętem” — do podmiany w jednym miejscu, gdy PJ potwierdzi, gdzie działa model AI
+const PRYWATNOSC = 'Twoje dane, mapa procesów i cała dokumentacja zostają na Twoim sprzęcie, w Twojej sieci. Ty decydujesz, jak go zabezpieczyć.';
+
+(() => {
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const tok = n => { let v = css(n); for (let i = 0; i < 4 && v.startsWith('var('); i++) v = css(v.slice(4, -1)); return v; };
+const FIN = PROCESY.find(p => p.id === 'FIN-03'), E3 = FIN.etapy[2], TR = TRESC['FIN-03#2'];
+const ETAPY = PROCESY.flatMap(p => p.etapy.map((e, i) => ({ p, e, i })));
+const SKOKI = PROCESY.reduce((s, p) => s + p.etapy.filter((e, i) => i && e.sys[0] !== p.etapy[i - 1].sys[0]).length, 0);
+
+// nazwy po ludzku: w modelu zostają nazwy składowych, na ekranie — język odbiorcy
+const odm = (n, a, b, c) => n === 1 ? a : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? b : c;
+const BIZ = { 'Autonomia per krok': 'Kto robi który krok', 'Guardrails': 'Granice dla AI', 'Uzupełnienia skilla': 'Instrukcja dla AI', 'Metryki': 'Miary' };
+const biz = n => BIZ[n] || n;
+
+// ===================== SCENA 3D =====================
+// Jedna scena w tle; slajdy podają jej stan (kamera, fokus, warstwa, kolory), a ona płynnie do niego dochodzi.
+const Scena = (() => {
+  const box = $('#scena'), warstwa = $('#etykiety');
+  const atrapa = t => { box.insertAdjacentHTML('beforeend', `<p class="brak-3d">${t}</p>`); return { ustaw() {} }; };
+  if (!window.THREE) return atrapa('Nie udało się wczytać Three.js — sprawdź połączenie z siecią.');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ antialias: true }); } catch (e) { return atrapa('Ta przeglądarka nie obsługuje WebGL.'); }
+  const DPR = Math.min(devicePixelRatio || 1, 1.75);
+  renderer.setPixelRatio(DPR);
+  box.prepend(renderer.domElement);
+
+  const C = n => new THREE.Color(tok(n));
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const KOL = { ok: C('--ok'), warn: C('--warn'), bad: C('--danger'), nz: C('--muted').multiplyScalar(.75) };
+  const KOL_AUT = [C('--muted'), C('--ok'), C('--warn'), C('--accent')];
+  const KOL_WYK = { czlowiek: C('--ink-2'), tech: C('--p-niebieski'), asystent: C('--p-brzoskwinia'), agent: C('--accent') };
+  const TIER = { zarzad: C('--violet'), lancuch: C('--accent'), wsparcie: C('--ink-2') };
+  const BIEL = C('--ink'), AK = C('--accent'), TLO = C('--bg');
+  const JASNY = Object.fromEntries(Object.entries(TIER).map(([k, c]) => [k, c.clone().lerp(BIEL, .3)]));
+  const kolorDz = n => JASNY[DZIALY[n].poz];
+
+  const scene = new THREE.Scene();
+  scene.background = TLO; scene.fog = new THREE.Fog(TLO, 55, 240);
+  const camera = new THREE.PerspectiveCamera(38, 1, .1, 400);
+  scene.add(new THREE.HemisphereLight(BIEL, C('--wire'), .8));
+  const sw = new THREE.DirectionalLight(BIEL, .75); sw.position.set(10, 22, 14); scene.add(sw);
+  const sw2 = new THREE.DirectionalLight(AK, .3); sw2.position.set(-14, 6, -12); scene.add(sw2);
+  const siatka = new THREE.GridHelper(260, 130, C('--wire-2'), C('--wire')); siatka.position.y = -4.6; scene.add(siatka);
+  siatka.material.transparent = true; siatka.material.opacity = .7;
+
+  // poświata: EffectComposer + UnrealBloomPass z examples r128 (jeśli się wczytały)
+  let composer = null;
+  if (THREE.EffectComposer && THREE.RenderPass && THREE.UnrealBloomPass) {
+    try {
+      composer = new THREE.EffectComposer(renderer);
+      composer.addPass(new THREE.RenderPass(scene, camera));
+      composer.addPass(new THREE.UnrealBloomPass(new THREE.Vector2(256, 256), .7, .6, .32));
+    } catch (e) { composer = null; }
+  }
+
+  // ---------- rejestr obiektów z płynną przezroczystością ----------
+  // a — bieżąca widoczność, t — docelowa, ob — obecność 0..1 (do wysuwania i skalowania), od — nie ruszaj przed tą chwilą (choreografia)
+  const wpisy = [];
+  const rej = (obj, mats, dod = {}) => { const o = { obj, mats: mats.map(m => { m.transparent = true; return [m, m.opacity]; }), a: 0, t: 0, ob: 0, od: 0, ...dod }; wpisy.push(o); return o; };
+  const cel = (o, t, opoz, snap) => { if (o.t === 0 && t > 0 && !snap) o.od = performance.now() + (opoz || 0); if (t === 0) o.od = 0; o.t = t; if (snap) { o.a = t; o.ob = t > 0 ? 1 : 0; o.od = 0; if (o.rys != null) o.rys = t > 0 ? 1 : 0; } };
+
+  const tekstura = rysuj => { const c = document.createElement('canvas'); c.width = c.height = 128; rysuj(c.getContext('2d')); return new THREE.CanvasTexture(c); };
+  const TEX_BLASK = tekstura(x => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(.18, 'rgba(255,255,255,.95)'); g.addColorStop(.42, 'rgba(255,255,255,.28)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 128, 128); });
+  const czastki = [];
+  const czastka = (krzywa, kol, wpis, v, skala = .34, t0 = Math.random()) => {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: TEX_BLASK, color: kol, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    sp.scale.setScalar(skala); scene.add(sp); czastki.push({ sp, krzywa, wpis, v, t: t0 }); return sp;
+  };
+  const swiatlo = (kol, op) => new THREE.MeshBasicMaterial({ color: kol, transparent: true, opacity: op, depthWrite: false, blending: THREE.AdditiveBlending });
+  const lukU = (A, B, wys = 1) => {
+    const H = Math.max(A.y, B.y) + (1.4 + A.distanceTo(B) * .09) * wys, c1 = A.clone().lerp(B, .22), c2 = A.clone().lerp(B, .78); c1.y = c2.y = H;
+    return new THREE.CubicBezierCurve3(A.clone(), c1, c2, B.clone());
+  };
+  const rura = (krzywa, r, m, seg) => new THREE.Mesh(new THREE.TubeGeometry(krzywa, seg || Math.max(2, Math.ceil(krzywa.getLength() * 5)), r, 6, false), m);
+
+  // ---------- płyta (dział albo program): bryła, wierzch, świecąca krawędź, pasek na nazwę ----------
+  const PAS = 1.5;
+  const zbudujPlyte = (d, kol, pas, opW, rodzic) => {
+    const g = new THREE.Group(); g.position.set(d.x, d.y, d.z); (rodzic || scene).add(g);
+    const D = d.d + pas, dz = pas / 2;
+    const mB = new THREE.MeshStandardMaterial({ color: C('--panel'), metalness: .25, roughness: .8 });
+    const bryla = new THREE.Mesh(new THREE.BoxGeometry(d.w, .35, D), mB); bryla.position.z = dz; bryla.renderOrder = -3; g.add(bryla);
+    const mW = new THREE.MeshBasicMaterial({ color: kol, opacity: opW, depthWrite: false });
+    const wierzch = new THREE.Mesh(new THREE.PlaneGeometry(d.w - .12, d.d - .12), mW); wierzch.rotation.x = -Math.PI / 2; wierzch.position.y = .18; wierzch.renderOrder = -2; g.add(wierzch);
+    const mK = new THREE.LineBasicMaterial({ color: kol, opacity: .8 });
+    const kr = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(d.w, .35, D)), mK); kr.position.z = dz; g.add(kr);
+    const mL = new THREE.LineBasicMaterial({ color: kol, opacity: .3 });
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(-d.w / 2 + .1, .181, d.d / 2), V(d.w / 2 - .1, .181, d.d / 2)]), mL));
+    return { g, mats: [mB, mW, mK, mL], mW, mK };
+  };
+
+  // ---------- działy ----------
+  const plyty = {};
+  Object.entries(DZIALY).forEach(([n, d], i) => {
+    const pl = zbudujPlyte(d, TIER[d.poz], PAS, .05);
+    plyty[n] = rej(pl.g, pl.mats, { d, i, mW: pl.mW, plyta: true });
+  });
+
+  // ---------- relacje między poziomami i strzałki łańcucha wartości (jak w mapie) ----------
+  const grupaRel = new THREE.Group(); scene.add(grupaRel);
+  const matyRel = [];
+  const kreska = (a, b, kol, op) => {
+    const m = new THREE.LineDashedMaterial({ color: kol, dashSize: .35, gapSize: .3, opacity: op }); matyRel.push(m);
+    const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([a, b]), m); l.computeLineDistances(); grupaRel.add(l);
+  };
+  const GORA = Object.values(DZIALY).filter(d => d.poz === 'zarzad');
+  Object.values(DZIALY).filter(d => d.poz === 'lancuch').forEach(d => { const G = GORA.reduce((a, b) => Math.abs(b.x - d.x) < Math.abs(a.x - d.x) ? b : a); kreska(V(d.x, G.y - .2, G.z + G.d / 2 + PAS), V(d.x, d.y + .2, d.z - d.d / 2), TIER.zarzad, .3); });
+  [['Zakupy', 'Produkcja'], ['HR', 'Kreacja produktu'], ['Dział prawny', 'Sprzedaż B2C'], ['Jakość i ISO', 'Produkcja'], ['IT', 'Logistyka'], ['Finanse', 'Logistyka']].forEach(([a, b]) => { const s = DZIALY[a], t = DZIALY[b]; kreska(V(s.x, s.y + .2, s.z - s.d / 2), V(t.x + (s.x > t.x ? 1.5 : 0), t.y - .2, t.z + t.d / 2 + PAS), TIER.wsparcie, .28); });
+  const matPrz = new THREE.MeshBasicMaterial({ color: AK, opacity: .32, depthWrite: false }); matyRel.push(matPrz);
+  const kraw = (n, strona) => { const d = DZIALY[n]; return V(d.x + strona * (d.w / 2 + .15), 0, d.z); };
+  [['Marketing', 'Sprzedaż B2B'], ['Marketing', 'Sprzedaż B2C'], ['Badania i rozwój', 'Kreacja produktu'], ['Sprzedaż B2B', 'Produkcja'], ['Sprzedaż B2C', 'Produkcja'], ['Kreacja produktu', 'Produkcja'], ['Produkcja', 'Logistyka']].forEach(([a, b]) => {
+    const A = kraw(a, 1), B = kraw(b, -1), mx = (A.x + B.x) / 2, pts = [A, V(mx, A.y, A.z), V(mx, B.y, B.z), B.clone().add(V(-.3, 0, 0))];
+    const sc = new THREE.CurvePath();
+    for (let i = 0; i < pts.length - 1; i++) if (pts[i].distanceTo(pts[i + 1]) > 1e-3) sc.add(new THREE.LineCurve3(pts[i], pts[i + 1]));
+    grupaRel.add(new THREE.Mesh(new THREE.TubeGeometry(sc, 80, .04, 6, false), matPrz));
+    const c = new THREE.Mesh(new THREE.ConeGeometry(.15, .32, 12), matPrz); c.quaternion.setFromUnitVectors(V(0, 1, 0), V(1, 0, 0)); c.position.copy(B).add(V(-.16, 0, 0)); grupaRel.add(c);
+  });
+  const relacje = rej(grupaRel, matyRel);
+
+  // ---------- procesy: etapy leżą na płytach swoich działów (rozkład jak w mapie) ----------
+  const ODST = 1.15, RZAD = .95;
+  PROCESY.forEach(p => {
+    p.odcinki = [];
+    p.etapy.forEach((e, i) => { const o = p.odcinki[p.odcinki.length - 1]; if (o && o.dz === e.dz) o.idx.push(i); else p.odcinki.push({ dz: e.dz, idx: [i] }); });
+  });
+  const naPlatformie = {};
+  [...PROCESY].sort((a, b) => (a.odcinki.length > 1) - (b.odcinki.length > 1)).forEach(p => p.odcinki.forEach((o, j) => {
+    o.lewy = j === 0 ? .62 : .05; const prawy = j === p.odcinki.length - 1 ? .7 : .05;
+    o.szer = (o.idx.length - 1) * ODST + o.lewy + prawy;
+    (naPlatformie[o.dz] = naPlatformie[o.dz] || []).push(o);
+  }));
+  Object.entries(naPlatformie).forEach(([dz, lista]) => {
+    const d = DZIALY[dz], uzyt = d.w - .6, PRZERWA = .5, n = lista.length;
+    const maxR = Math.max(1, Math.floor((d.d - .3) / RZAD)), maxSzer = Math.max(...lista.map(o => o.szer));
+    let cols = Math.max(1, Math.min(n, Math.floor((uzyt + PRZERWA) / (maxSzer + PRZERWA))));
+    let rows = Math.ceil(n / cols);
+    if (rows > maxR) { rows = maxR; cols = Math.ceil(n / maxR); }
+    cols = Math.ceil(n / rows);
+    lista.forEach((o, i) => {
+      const c = i % cols, r = Math.floor(i / cols), wRzedzie = Math.min(cols, n - r * cols), kw = uzyt / wRzedzie;
+      if (o.szer > kw - .2 && o.idx.length > 1) {
+        const prawy = o.szer - o.lewy - (o.idx.length - 1) * ODST;
+        o.odst = Math.max(.42, (kw - .2 - o.lewy - prawy) / (o.idx.length - 1));
+        o.szer = o.lewy + prawy + (o.idx.length - 1) * o.odst;
+      }
+      o.x = d.x - uzyt / 2 + kw * (c + .5) - o.szer / 2;
+      o.z = d.z - d.d / 2 + d.d * (r + .5) / rows;
+    });
+  });
+  PROCESY.forEach(p => p.odcinki.forEach(o => { o.px = o.idx.map((_, k) => o.x + o.lewy + k * (o.odst || ODST)); }));
+
+  // kula etapu: ciemne wnętrze w odcieniu stanu i świecąca obwódka (fresnel) — jak w mapie
+  const GEO_KULA = new THREE.SphereGeometry(.2, 28, 18);
+  const matKuli = c => {
+    const kol = c.clone();
+    const m = new THREE.MeshStandardMaterial({ color: kol.clone().multiplyScalar(.28), emissive: kol.clone().multiplyScalar(.16), roughness: .85, metalness: .05, transparent: true, opacity: 0 });
+    m.userData.kol = kol;
+    m.onBeforeCompile = sh => {
+      sh.uniforms.uObw = { value: kol };
+      sh.fragmentShader = 'uniform vec3 uObw;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>',
+        '#include <emissivemap_fragment>\n  float fr = pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 2.4);\n  totalEmissiveRadiance += uObw * (fr * 1.7 + 0.06);');
+    };
+    m.customProgramCacheKey = () => 'kula-obwodka';
+    return m;
+  };
+  const kule = [];
+  PROCESY.forEach((p, pi) => {
+    p.pi = pi;
+    // nitka procesu: jedna rura wzdłuż całej ścieżki — rysuje się jak linia światła (drawRange)
+    const sc = new THREE.CurvePath(), y3 = dz => DZIALY[dz].y + .22;
+    p.odcinki.forEach((o, j) => {
+      const ost = j === p.odcinki.length - 1, xs = j === 0 ? o.x : o.px[0], xe = ost ? o.x + o.szer : o.px[o.px.length - 1];
+      if (xe - xs > 1e-3) sc.add(new THREE.LineCurve3(V(xs, y3(o.dz), o.z), V(xe, y3(o.dz), o.z)));
+      if (!ost) { const n = p.odcinki[j + 1]; sc.add(lukU(V(xe, y3(o.dz), o.z), V(n.px[0], y3(n.dz), n.z))); }
+    });
+    const seg = Math.min(260, Math.max(8, Math.ceil(sc.getLength() * 4)));
+    const m = swiatlo(kolorDz(p.od), .5);
+    const nitka = new THREE.Mesh(new THREE.TubeGeometry(sc, seg, .032, 6, false), m); scene.add(nitka);
+    p.w = rej(nitka, [m], { rys: 0, seg, proc: p, pi });
+    p.sc = sc;
+    czastka(sc, BIEL, p.w, (p.dzialy.length > 1 ? .9 : .5) / sc.getLength(), .3);
+    p.kule = [];
+    p.odcinki.forEach(o => o.idx.forEach((i, k) => {
+      const e = p.etapy[i], mk = matKuli(KOL[e.kl]), mesh = new THREE.Mesh(GEO_KULA, mk); scene.add(mesh);
+      const s = { mesh, m: mk, p, i, e, pos3: V(o.px[k], DZIALY[o.dz].y + .175, o.z), posT: null, kol: KOL[e.kl].clone(), kolT: KOL[e.kl], a: 0, t: 0, ob: 0, od: 0, kolOd: 0, puls: 0 };
+      p.kule[i] = s; kule.push(s);
+    }));
+  });
+  const KE3 = FIN.kule[2];
+
+  // ---------- zależności: przepływy danych między procesami ----------
+  const grupaZal = new THREE.Group(); scene.add(grupaZal);
+  const matZal = swiatlo(C('--violet'), .4);
+  const zal = rej(grupaZal, [matZal]);
+  PRZEPLYWY.forEach(([pa, ea, pb, eb], i) => {
+    const A = PROCESY.find(p => p.id === pa).kule[ea - 1].pos3, B = PROCESY.find(p => p.id === pb).kule[eb - 1].pos3;
+    const k = lukU(A.clone().add(V(0, .1, 0)), B.clone().add(V(0, .1, 0)), .75);
+    grupaZal.add(rura(k, .018, matZal, 28));
+    czastka(k, C('--violet').lerp(BIEL, .4), zal, .22 + (i % 5) * .03, .3);
+  });
+
+  // ---------- technologia: programy jako płyty na czterech piętrach (rozkład na wzór mapy) ----------
+  const KOM_X = 1.2, KOM_Z = 1.05, PAS_T = .9;
+  const grupaT = new THREE.Group(); scene.add(grupaT);
+  const matyT = [];
+  Object.values(PROG).forEach(t => {
+    const [war] = OPIS_T[t.n] || ['dziedzinowe'];
+    t.war = war; t.y = WARSTWY_T[war][0];
+    const n = t.et.length;
+    t.kol = n <= 2 ? 2 : Math.ceil(Math.sqrt(n * 1.8)); t.rz = Math.max(1, Math.ceil(n / t.kol));
+    t.w = Math.max(4, t.kol * KOM_X + 1.2); t.d = t.rz * KOM_Z + .9; t.D = t.d + PAS_T;
+  });
+  const KOLEJ_KAT = ['rdzen', 'operacje', 'handel', 'produkt', 'finanse', 'ludzie', 'biuro'];
+  const MAX_W = 62, ODST_X = 2.4, ODST_RZ = 2, ODST_POZ = 7.5;
+  let zKursor = 0;
+  Object.keys(WARSTWY_T).forEach(war => {
+    const lista = Object.values(PROG).filter(t => t.war === war).sort((a, b) => KOLEJ_KAT.indexOf(a.kat) - KOLEJ_KAT.indexOf(b.kat) || b.et.length - a.et.length);
+    if (!lista.length) return;
+    const rzedy = [[]]; let szer = 0;
+    lista.forEach(t => { if (szer && szer + ODST_X + t.w > MAX_W) { rzedy.push([]); szer = 0; } rzedy[rzedy.length - 1].push(t); szer += (szer ? ODST_X : 0) + t.w; });
+    rzedy.forEach(rz => {
+      const glab = Math.max(...rz.map(t => t.D)), cala = rz.reduce((s, t) => s + t.w, 0) + ODST_X * (rz.length - 1);
+      let x = -cala / 2;
+      rz.forEach(t => { t.x = x + t.w / 2; t.z = zKursor + glab / 2 - PAS_T / 2; x += t.w + ODST_X; });
+      zKursor += glab + ODST_RZ;
+    });
+    zKursor += ODST_POZ - ODST_RZ;
+  });
+  const zSrodek = (zKursor - ODST_POZ) / 2;
+  const strPoz = {}, grupaD = new THREE.Group(); scene.add(grupaD);
+  const matyD = [], matDom = {}, GEO_STR = new THREE.CylinderGeometry(.27, .27, .32, 22), GEO_ZR = new THREE.TorusGeometry(.38, .03, 8, 30);
+  const matZr = swiatlo(C('--caution'), .9); matyD.push(matZr);
+  Object.entries(KAT_D).forEach(([k, [, t]]) => { const c = C(t); matyD.push(matDom[k] = new THREE.MeshStandardMaterial({ color: c.clone().multiplyScalar(.45), emissive: c.clone().multiplyScalar(.5), roughness: .6 })); });
+  Object.values(PROG).forEach(t => {
+    t.z -= zSrodek;
+    const kol = C(KAT_T[t.kat][1]);
+    const pl = zbudujPlyte(t, t.wyspa ? C('--danger') : kol, PAS_T, t.wyspa ? .1 : .06, grupaT); matyT.push(...pl.mats); t.g = pl.g;
+    // etapy, dla których program jest główny — siatka komórek na płycie
+    t.et.forEach(({ p, i }, k) => {
+      const c = k % t.kol, r = Math.floor(k / t.kol);
+      p.kule[i].posT = V(t.x - (t.kol - 1) * KOM_X / 2 + c * KOM_X, t.y + .175, t.z - (t.rz - 1) * KOM_Z / 2 + r * KOM_Z);
+    });
+    // struktury danych programu: walce w kolorze domeny, złoty pierścień = źródło prawdy
+    const st = STRUKTURY[t.n] || [], kolS = Math.max(1, Math.min(st.length, Math.floor((t.w - .6) / .95))), rzS = Math.ceil(st.length / kolS);
+    st.forEach(([nazwa, dom, , zr], k) => {
+      const c = k % kolS, r = Math.floor(k / kolS), wRz = Math.min(kolS, st.length - r * kolS);
+      const poz = V(t.x - (wRz - 1) * .95 / 2 + c * .95, t.y + .34, t.z + (rzS > 1 ? (r - (rzS - 1) / 2) * .9 : 0));
+      const walec = new THREE.Mesh(GEO_STR, matDom[dom] || matDom.wiedza); walec.position.copy(poz); grupaD.add(walec);
+      if (zr) { const o = new THREE.Mesh(GEO_ZR, matZr); o.rotation.x = Math.PI / 2; o.position.copy(poz).add(V(0, -.14, 0)); grupaD.add(o); }
+      strPoz[t.n + '/' + nazwa] = poz.clone().add(V(0, .2, 0));
+    });
+  });
+  const tech = rej(grupaT, matyT), dane = rej(grupaD, matyD);
+  // nitki technologii: w obrębie programu prosto, przeskok do innego programu — łuk górą
+  const grupaN = new THREE.Group(); scene.add(grupaN);
+  const matProsto = swiatlo(C('--ink-2'), .22), matSkok = swiatlo(AK, .6);
+  const techN = rej(grupaN, [matProsto, matSkok]);
+  PROCESY.forEach(p => p.etapy.forEach((e, i) => {
+    if (!i) return;
+    const A = p.kule[i - 1].posT.clone().add(V(0, .05, 0)), B = p.kule[i].posT.clone().add(V(0, .05, 0));
+    if (e.sys[0] === p.etapy[i - 1].sys[0]) grupaN.add(rura(new THREE.LineCurve3(A, B), .025, matProsto, 1));
+    else { const k = lukU(A, B, .8); grupaN.add(rura(k, .028, matSkok, 26)); czastka(k, AK.clone().lerp(BIEL, .5), techN, .3 + (i % 4) * .05, .3); }
+  }));
+  // integracje między strukturami: automat — jasna linia, ręcznie — pomarańczowa
+  const matAuto = swiatlo(C('--ink-2'), .3), matRecz = swiatlo(C('--warn'), .8); matyD.push(matAuto, matRecz); dane.mats.push([matAuto, .3], [matRecz, .8]);
+  INTEGRACJE.forEach(([a, b, jak], i) => {
+    const A = strPoz[a], B = strPoz[b]; if (!A || !B) return;
+    const k = lukU(A, B, .7), r = jak === 'ręcznie';
+    grupaD.add(rura(k, r ? .034 : .022, r ? matRecz : matAuto, 26));
+    if (!r) czastka(k, BIEL, dane, .28 + (i % 5) * .04, .28);
+  });
+
+  // ---------- dział APD (Autonomous Process Department): nowa płyta z czterema agentami i połączeniami do wszystkich działów ----------
+  const DD = { x: 0, y: -3.2, z: 31.5, w: 26, d: 3.6 };
+  const plD = zbudujPlyte(DD, AK, PAS, .16);
+  const matAg = new THREE.MeshStandardMaterial({ color: AK.clone().multiplyScalar(.5), emissive: AK.clone().multiplyScalar(.22), roughness: .5 });
+  const matOko = new THREE.MeshBasicMaterial({ color: TLO });
+  const AGENCI = [['Opiekun działu', -8.4, 1.35], ['Projektant procesu', -3.8, 1], ['Analityk braków', 3.8, 1], ['Agent wdrożeniowy', 8.4, 1]];
+  const agenci = AGENCI.map(([n, x, sk], i) => {
+    const g = new THREE.Group(); g.position.set(x, .18 + .34 * sk, 0); g.scale.setScalar(sk);
+    g.add(new THREE.Mesh(new THREE.BoxGeometry(.9, .68, .5), matAg));
+    [-.17, .17].forEach(ox => { const o = new THREE.Mesh(new THREE.BoxGeometry(.16, .16, .02), matOko); o.position.set(ox, .04, .255); g.add(o); });
+    plD.g.add(g); return { g, n, y0: g.position.y, i };
+  });
+  const daac = rej(plD.g, [...plD.mats, matAg, matOko], { d: DD, plyta: true, i: 0, mW: plD.mW });
+  const grupaL = new THREE.Group(); scene.add(grupaL);
+  const matLin = swiatlo(AK, .34), linie = rej(grupaL, [matLin]);
+  Object.values(DZIALY).forEach((d, i) => {
+    const A = V(DD.x + d.x / 40 * DD.w * .5, DD.y + .3, DD.z - DD.d / 2), B = V(d.x, d.y + .3, d.z + d.d / 2);
+    const k = lukU(A, B, d.poz === 'wsparcie' ? .5 : .9);
+    grupaL.add(rura(k, .02, matLin, 30));
+    czastka(k, AK.clone().lerp(BIEL, .55), linie, (i % 2 ? -1 : 1) * (.2 + (i % 4) * .04), .36);
+  });
+
+  // ---------- przekrój etapu E3 — widok z aplikacji („anatomia” w mapie 3D): dysk, w środku trzy warstwy, na obwodzie 19 składowych ----------
+  // długość segmentu = waga składowej (wymagane najdłuższe); stan segmentu: off · ok · brak · todo · prop · spor · zm
+  const KIER_A = V(.06, .4, 1).normalize();
+  const grupaA = new THREE.Group(); grupaA.position.copy(KE3.pos3); grupaA.visible = false; scene.add(grupaA);
+  { const wz = new THREE.Object3D(); wz.position.copy(KE3.pos3).addScaledVector(KIER_A, 8); wz.lookAt(KE3.pos3); grupaA.quaternion.copy(wz.quaternion).multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 1, 0), Math.PI)); }
+  const sektor = (r0, r1, a0, a1) => { const sh = new THREE.Shape(); sh.absarc(0, 0, r1, a0, a1, false); sh.absarc(0, 0, r0, a1, a0, true); return sh; };
+  const matA = kol => new THREE.MeshBasicMaterial({ color: kol, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+  const linA = kol => new THREE.LineBasicMaterial({ color: kol, transparent: true, opacity: 0, depthTest: false, depthWrite: false });
+  const R0 = .3, R1 = .66, R2 = .7, R3 = 1.25, GL = .055, KROK_A = 2 * Math.PI / WSZ_M.length, OD_A = .012, RB = R3 + .07;
+  const KOL_W = [C('--ink-2'), C('--warn'), AK], KOL_BRAK = C('--danger'), KOL_SPOR = C('--warn');
+  const TEX_TLO_A = tekstura(x => { const g = x.createRadialGradient(64, 64, 0, 64, 64, 64), k = a => `rgba(${Math.round(TLO.r * 255)},${Math.round(TLO.g * 255)},${Math.round(TLO.b * 255)},${a})`; g.addColorStop(0, k(.95)); g.addColorStop(.42, k(.9)); g.addColorStop(.7, k(.5)); g.addColorStop(1, k(0)); x.fillStyle = g; x.fillRect(0, 0, 128, 128); });
+  const tloA = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshBasicMaterial({ map: TEX_TLO_A, transparent: true, opacity: 0, depthTest: false, depthWrite: false })); tloA.position.z = -.3; grupaA.add(tloA);
+  const obwA = new THREE.Mesh(new THREE.RingGeometry(RB - .02, RB + .02, 160), matA(KOL.ok)); obwA.position.z = GL; grupaA.add(obwA);
+  const warA = [], segA = [], etA = []; let katA = 0, przA = 0, przT = 0, przOd = 0;
+  WARSTWY_M.forEach((w, wi) => {
+    const a0 = katA, a1 = katA + w.el.length * KROK_A, ang = t => Math.PI / 2 - t, sr = (a0 + a1) / 2;
+    const wa = { m: matA(KOL_W[wi].clone().multiplyScalar(.55)), wi, a: 0, t: 0, lok: V(Math.cos(ang(sr)) * (R0 * .28 + R1 * .72), Math.sin(ang(sr)) * (R0 * .28 + R1 * .72), GL + .01), n: w.n === 'Delegowanie na AI' ? 'Delegowanie' : w.n }; warA.push(wa);
+    grupaA.add(new THREE.Mesh(new THREE.ExtrudeGeometry(sektor(R0, R1, ang(a1 - OD_A), ang(a0 + OD_A)), { depth: GL, bevelEnabled: false, curveSegments: 32 }), wa.m));
+    w.el.forEach((n, k) => {
+      const b0 = a0 + k * KROK_A, b1 = b0 + KROK_A, Rk = R2 + (R3 - R2) * { M: 1, S: .75, C: .5, W: .25 }[PRIO_M[n]];
+      const geo = new THREE.ExtrudeGeometry(sektor(R2, Rk, ang(b1 - OD_A), ang(b0 + OD_A)), { depth: GL, bevelEnabled: false, curveSegments: 12 });
+      const baza = KOL_W[wi].clone().multiplyScalar(.85), o = { n, wi, k, nr: segA.length, ma: !E3.brak.includes(n), mF: matA(baza.clone()), mO: linA(KOL_BRAK.clone()), sa: ang((b0 + b1) / 2), Rk, baza, kolT: baza, st: 'off', nast: null, fill: 0, fillT: .07, obw: 0, obwT: 0, labA: 0, labT: 0, od: 0 };
+      grupaA.add(new THREE.Mesh(geo, o.mF), new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), o.mO)); segA.push(o);
+    });
+    katA = a1;
+  });
+  // odnośniki: kropka na brzegu segmentu → łamana na zewnątrz koła → podpis na poziomej kresce (układ jak w aplikacji)
+  const R_ET = R3 + .14, ODL = .17, DL = .62;
+  [false, true].forEach(lewa => {
+    const strona = segA.filter(o => (Math.cos(o.sa) < -.05) === lewa).sort((x, y) => Math.sin(y.sa) - Math.sin(x.sa));
+    strona.forEach((o, k) => { o.ey = Math.sin(o.sa) * R_ET; if (k && o.ey > strona[k - 1].ey - ODL) o.ey = strona[k - 1].ey - ODL; });
+    const wystaje = strona.length ? Math.max(0, -(R_ET + .1) - strona[strona.length - 1].ey) : 0;
+    strona.forEach(o => {
+      o.ey += wystaje;
+      const ex = Math.cos(o.sa) * R_ET, kx = lewa ? Math.min(ex, -(R3 + .08)) : Math.max(ex, R3 + .08), kon = kx + (lewa ? -DL : DL), dot = V(Math.cos(o.sa) * o.Rk, Math.sin(o.sa) * o.Rk, GL + .002);
+      o.mL = linA(KOL_W[o.wi]); o.mK = matA(KOL_W[o.wi]);
+      grupaA.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([dot, V(kx, o.ey, GL), V(kon, o.ey, GL)]), o.mL));
+      const kr = new THREE.Mesh(new THREE.CircleGeometry(.022, 16), o.mK); kr.position.copy(dot); grupaA.add(kr);
+      o.lok = V(kx + (lewa ? -.03 : .03), o.ey + .012, GL); o.lewa = lewa;
+    });
+  });
+  grupaA.traverse(o => { o.renderOrder = o === tloA ? 19 : 20; });   // zawsze na wierzchu: nic ze sceny nie przecina przekroju
+  const TAG_A = { brak: 'brak', todo: 'do dopisania', prop: 'propozycja agenta', spor: 'dwie wersje', zm: 'zmienione' };
+  const STYL_A = { off: [.07, 0, null, 0], ok: [1, 0, null, 1], brak: [.22, 1, KOL_BRAK, 1], todo: [.2, 1, AK, 1], prop: [.8, 1, AK, 1], spor: [.95, 1, KOL_SPOR, 1], zm: [1, 1, AK, 1] };
+
+  // ---------- sygnał rozjazdu: łuk z etapu do Zarządu ----------
+  const grupaS = new THREE.Group(); scene.add(grupaS);
+  const ZRZ = DZIALY['Zarząd'], celS = V(ZRZ.x, ZRZ.y + .3, ZRZ.z);
+  const lukS = lukU(KE3.pos3.clone().add(V(0, .2, 0)), celS, .8), matS = swiatlo(C('--warn'), .7);
+  grupaS.add(rura(lukS, .035, matS, 60));
+  const sygnal = rej(grupaS, [matS]);
+  [0, .33, .66].forEach(t0 => czastka(lukS, C('--warn').lerp(BIEL, .3), sygnal, .3, .5, t0));
+
+  // ---------- Mac mini: bryła obejmująca całą firmę („mapa w środku”), wpięta przewodem w sieć klienta ----------
+  const grupaM = new THREE.Group(); scene.add(grupaM);
+  const MAC = { w: 80, h: 13, d: 72, y: 2.2, z: 3 };
+  const mSc = new THREE.MeshBasicMaterial({ color: AK, opacity: .045, depthWrite: false, side: THREE.DoubleSide });
+  const mKr = new THREE.LineBasicMaterial({ color: C('--ink'), opacity: .75 }), mKr2 = new THREE.LineBasicMaterial({ color: AK, opacity: .35 });
+  const mLed = swiatlo(C('--ok'), 1), mSiec = swiatlo(AK, .7);
+  const geoMac = new THREE.BoxGeometry(MAC.w, MAC.h, MAC.d);
+  const bryM = new THREE.Mesh(geoMac, mSc); bryM.position.set(0, MAC.y, MAC.z); bryM.renderOrder = 5; grupaM.add(bryM);
+  const krM = new THREE.LineSegments(new THREE.EdgesGeometry(geoMac), mKr); krM.position.copy(bryM.position); grupaM.add(krM);
+  const krM2 = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(MAC.w - 3, .01, MAC.d - 3)), mKr2); krM2.position.set(0, MAC.y + MAC.h / 2, MAC.z); grupaM.add(krM2);
+  const led = new THREE.Mesh(new THREE.SphereGeometry(.45, 16, 12), mLed); led.position.set(MAC.w / 2 - 4, MAC.y - MAC.h / 2 + 2.2, MAC.z + MAC.d / 2); grupaM.add(led);
+  const SIEC = V(MAC.w / 2 + 26, MAC.y - 3, MAC.z - 6), gniazdo = V(MAC.w / 2, MAC.y - 3, MAC.z - 6);
+  const wezel = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(7, 3.4, 7)), mKr); wezel.position.copy(SIEC).add(V(3.5, 0, 0)); grupaM.add(wezel);
+  const kabel = new THREE.CatmullRomCurve3([gniazdo, gniazdo.clone().add(V(8, -1.8, 2)), SIEC.clone().add(V(-8, 1.2, -2)), SIEC]);
+  grupaM.add(rura(kabel, .12, mSiec, 50));
+  const mac = rej(grupaM, [mSc, mKr, mKr2, mLed, mSiec]);
+  [0, .5].forEach((t0, i) => czastka(kabel, AK.clone().lerp(BIEL, .5), mac, i ? -.3 : .3, 1.4, t0));
+
+  // ---------- etykiety HTML przypięte do punktów sceny ----------
+  const etyk = [];
+  const etykieta = (poz, html, kl, grupa, alfa, styl) => { const el = document.createElement('div'); el.className = 'et3 ' + kl; el.innerHTML = html; if (styl) el.style.cssText = styl; warstwa.append(el); etyk.push({ el, poz, grupa, alfa, wid: false }); };
+  Object.entries(DZIALY).forEach(([n, d]) => {
+    etykieta(V(d.x, d.y + .25, d.z + d.d / 2 + PAS / 2), esc(n), 'et-dz', 'dzialy', () => plyty[n].a * plyty[n].ob, `--tc:var(${POZIOMY[d.poz][1]})`);
+  });
+  FIN.kule.forEach((s, i) => etykieta(s.pos3, `<b>E${i + 1}</b><span>${esc(s.e.n)}</span>`, 'et-etap', 'etapy', () => s.a));
+  // etykiety przekroju: nazwy warstw, podpisy składowych na odnośnikach, licznik w środku
+  const etPrz = (lok, kl, alfa, tr) => { etykieta(V(0, 0, 0), '', kl, 'prz', alfa); const l = etyk[etyk.length - 1]; l.lok = lok; l.tr = tr; return l; };
+  warA.forEach(wa => { etPrz(wa.lok, 'anat-w', () => przA * wa.a).el.textContent = wa.n; });
+  segA.forEach(o => { o.lab = etPrz(o.lok, 'anat-s', () => przA * o.labA, o.lewa ? 'translate(-100%,-100%)' : 'translate(0,-100%)'); });
+  const srA = etPrz(V(0, 0, GL), 'anat-sr', () => przA);
+  const nadajSt = o => {
+    o.st = o.nast; o.nast = null; const [f, ob, kol, lab] = STYL_A[o.st]; o.fillT = f; o.obwT = ob; o.labT = lab; if (kol) o.mO.color.copy(kol);
+    o.kolT = o.st === 'prop' ? AK : o.st === 'spor' ? KOL_SPOR : o.baza;
+    o.lab.el.className = 'et3 anat-s ' + o.st + (o.lewa ? ' lewa' : '') + (o.lab.wid ? ' wid' : '');
+    o.lab.el.innerHTML = `<span>${esc(biz(o.n))}</span>${TAG_A[o.st] ? `<i>${TAG_A[o.st]}</i>` : ''}`;
+    srA.el.innerHTML = `<b>${segA.filter(x => ['ok', 'zm', 'spor'].includes(x.st)).length}<small> / ${WSZ_M.length}</small></b><span>FIN-03 · E3</span>`;
+  };
+  const ustawPrz = (now, snap, opozn) => {
+    const z = stan.prz && stan.widok === 'proc' ? stan.prz : null;
+    if (z && !przT && !snap) przOd = now + opozn;
+    przT = z ? 1 : 0; if (snap) { przA = przT; przOd = 0; }
+    if (!z) return;
+    warA.forEach(wa => { wa.t = wa.wi < z.w ? 1 : .14; if (snap) wa.a = wa.t; });
+    segA.forEach(o => {
+      const st = o.wi >= z.w ? 'off' : !o.ma ? 'brak' : (z.spor || []).includes(o.n) ? 'spor' : (z.zm || []).includes(o.n) ? 'zm' : o.wi === 2 && z.del && z.del !== 'on' ? z.del : 'ok';
+      if (st === (o.nast || o.st)) return;
+      const zapal = st === 'ok' && o.wi === 2 && (o.st === 'prop' || o.st === 'todo');      // akceptacja propozycji: zapalają się jedna po drugiej
+      o.nast = st; o.od = now + opozn + (przA < .5 ? 900 : 250) + (zapal ? o.k * 450 : o.nr * 45);
+      if (snap) nadajSt(o);
+    });
+    if (snap) segA.forEach(o => { o.fill = o.fillT; o.obw = o.obwT; o.labA = o.labT; o.mF.color.copy(o.kolT); });
+  };
+  // gdzie na ekranie stanie przekrój po dolocie kamery — do „wciągania” kuli etapu z widoku działu
+  const ekranPrzekroju = () => {
+    camera.position.copy(kam.d[0]); camera.lookAt(kam.d[1]); camera.setViewOffset(W, H, -kam.oxT * W, -kam.oyT * H, W, H);
+    camera.updateMatrixWorld(); camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
+    const sr = KE3.pos3.clone().project(camera), bok = KE3.pos3.clone().add(V(1, 0, 0).applyQuaternion(camera.quaternion).multiplyScalar(RB)).project(camera);
+    const x = (sr.x * .5 + .5) * W, y = (-sr.y * .5 + .5) * H;
+    return { x, y, r: Math.abs((bok.x * .5 + .5) * W - x) };
+  };
+  Object.values(PROG).forEach(t => etykieta(V(t.x, t.y + .25, t.z + t.d / 2 + PAS_T / 2), `${esc(t.n)}${t.wyspa ? '<i>wyspa</i>' : ''}`, 'et-prog', 'programy', () => tech.a, `--tc:var(${KAT_T[t.kat][1]})`));
+  etykieta(V(DD.x, DD.y + .25, DD.z + DD.d / 2 + PAS / 2), 'APD · Autonomous Process Department', 'et-daac', 'daac', () => daac.a);
+  agenci.forEach(a => etykieta(V(DD.x + a.g.position.x, DD.y + 1.2, DD.z), esc(a.n), 'et-ag', 'agenci', () => daac.a * (a.i === 0 || a.i === 3 ? 1 : 1 - kontakt.a)));
+  etykieta(V(0, MAC.y + MAC.h / 2 + 1, MAC.z + MAC.d / 2), 'Mac mini · M5 Pro · 64 GB RAM · 2 TB', 'et-daac', 'mac', () => mac.a);
+  etykieta(SIEC.clone().add(V(3.5, 4, 0)), 'Twoja sieć', 'et-daac', 'mac', () => mac.a);
+  // ---------- szefowie działów: ludziki spadają na płyty (miękkie lądowanie, płyta się ugina), etykieta jedzie razem z ludzikiem ----------
+  const IMIONA = ['Marek W.', 'Ewa S.', 'Karolina B.', 'Tomasz R.', 'Piotr Z.', 'Magda L.', 'Agnieszka P.', 'Robert K.', 'Jan D.', 'Paweł M.', 'Joanna T.', 'Michał O.', 'Beata N.', 'Łukasz C.', 'Anna K.'];
+  const KOL_CZL = C('--p-brzoskwinia');
+  const matCzl = new THREE.MeshStandardMaterial({ color: KOL_CZL.clone().multiplyScalar(.55), emissive: KOL_CZL.clone().multiplyScalar(.32), roughness: .55 });
+  const GEO_TULOW = new THREE.CylinderGeometry(.2, .32, .62, 18), GEO_GLOWA = new THREE.SphereGeometry(.21, 18, 14);
+  const ludziki = Object.entries(DZIALY).map(([n, d], i) => {
+    const g = new THREE.Group(), m = matCzl.clone(); m.transparent = true; m.opacity = 0; scene.add(g);
+    const tulow = new THREE.Mesh(GEO_TULOW, m); tulow.position.y = .31; g.add(tulow);
+    const glowa = new THREE.Mesh(GEO_GLOWA, m); glowa.position.y = .86; g.add(glowa);
+    const l = { g, m, n, d, i, x: n === 'Sprzedaż B2C' ? d.x + d.w / 2 - 1.1 : d.x - d.w / 2 + 1.1, z: d.z + d.d / 2 + PAS / 2, on: false, t0: 0, a: 0, glowaPoz: V(0, 0, 0) };
+    const rola = PROCESY.find(p => p.od === n)?.wl || 'Kierownik działu';
+    etykieta(l.glowaPoz, `<b>${esc(rola)}</b> · ${IMIONA[i % IMIONA.length]}`, 'et-czl', 'szefowie', () => l.a);
+    return l;
+  });
+  // ---------- kontakt z ludźmi: tylko Opiekun działu i Agent wdrożeniowy łączą się z szefami działów ----------
+  const grupaK = new THREE.Group(); scene.add(grupaK);
+  const matK = [swiatlo(AK, .5), swiatlo(KOL_CZL, .45)], kontakt = rej(grupaK, matK);
+  [0, 3].forEach((ai, j) => ludziki.forEach((l, i) => {
+    const A = V(DD.x + AGENCI[ai][1], DD.y + .9, DD.z - DD.d / 2 + .4), B = V(l.x, l.d.y + .9, l.z);
+    const k = lukU(A, B, j ? .7 : 1.1); grupaK.add(rura(k, .025, matK[j], 30));
+    czastka(k, (j ? KOL_CZL : AK).clone().lerp(BIEL, .5), kontakt, (i % 2 ? -1 : 1) * (.18 + (i % 3) * .05), .32);
+  }));
+  const odbicie = u => { const n1 = 7.5625, d1 = 2.75; return u < 1 / d1 ? n1 * u * u : u < 2 / d1 ? n1 * (u -= 1.5 / d1) * u + .75 : u < 2.5 / d1 ? n1 * (u -= 2.25 / d1) * u + .9375 : n1 * (u -= 2.625 / d1) * u + .984375; };
+  const SPADEK = 1000, WYS = 15;
+  // ---------- punkty zapalne: pulsujące ramki wokół działów, programów i struktur danych + etykiety z liczbą ----------
+  const KOL_Z = { bad: C('--danger'), warn: C('--warn'), acc: AK, ok: C('--ok') };
+  const GEO_RAMKA = new THREE.BufferGeometry().setFromPoints([V(-.5, 0, -.5), V(.5, 0, -.5), V(.5, 0, .5), V(-.5, 0, .5)]);
+  const GEO_POLE = new THREE.PlaneGeometry(1, 1); GEO_POLE.rotateX(-Math.PI / 2);
+  const miejsce = k => {   // gdzie leży wskazany dział, program albo struktura danych i jak jest duży
+    if (k.dz) { const d = DZIALY[k.dz]; return { p: V(d.x, d.y + .32, d.z + PAS / 2), w: d.w + .7, d: d.d + PAS + .7, tech: 0 }; }
+    if (k.prog) { const t = PROG[k.prog]; return { p: V(t.x, t.y + .32, t.z + PAS_T / 2), w: t.w + .7, d: t.D + .7, tech: 1 }; }
+    const q = strPoz[k.str]; return { p: V(q.x, q.y - .1, q.z), w: 1.1, d: 1.1, tech: 1 };
+  };
+  const znaczniki = Array.from({ length: 8 }, (_, i) => {
+    const g = new THREE.Group(), mL = new THREE.LineBasicMaterial({ color: KOL_Z.bad, transparent: true, opacity: 0, depthTest: false }), mP = swiatlo(KOL_Z.bad, 0);
+    const l1 = new THREE.LineLoop(GEO_RAMKA, mL), l2 = new THREE.LineLoop(GEO_RAMKA, mL), pole = new THREE.Mesh(GEO_POLE, mP); g.add(l1, l2, pole); g.visible = false; g.renderOrder = 12; scene.add(g);
+    const z = { g, l2, mL, mP, a: 0, t: 0, od: 0, m: null, i, poz: V(0, 0, 0) };
+    etykieta(z.poz, '', 'et-zap', 'zap', () => z.a); z.lab = etyk[etyk.length - 1];
+    return z;
+  });
+  const ustawZap = (now, snap) => {
+    const lista = stan.zapal || [];
+    znaczniki.forEach((z, i) => {
+      const c = lista[i];
+      if (c) { z.m = miejsce(c.k); z.kol = KOL_Z[c.kol || 'bad']; z.mL.color.copy(z.kol); z.mP.color.copy(z.kol); z.lab.el.innerHTML = c.html; z.lab.el.style.setProperty('--zc', `var(${{ bad: '--danger', warn: '--warn', acc: '--accent', ok: '--ok' }[c.kol || 'bad']})`); if (!z.t && !snap) z.od = now + 900 + i * 260; }
+      z.t = c ? 1 : 0; if (snap) { z.a = z.t; z.od = 0; }
+    });
+  };
+  etykieta(celS, 'COO · do rozstrzygnięcia', 'et-syg', 'sygnal', () => sygnal.a);
+
+  // ---------- kamera: ujęcia i płynny lot między nimi ----------
+  const UJECIA = {
+    firma: () => [V(0, 47, 76), V(0, -1, 9)],
+    tytul: () => [V(0, 30, 86), V(0, 2, 2)],
+    firmaL: () => [V(0, 52, 90), V(0, -1, 9)],
+    firmaD: () => [V(0, 46, 86), V(0, -3, 9)],
+    daac: () => [V(-3, 13, 60), V(0, -1.5, 22)],
+    problem: () => [KE3.pos3.clone().add(V(-.4, 3.6, 7.4)), KE3.pos3.clone().add(V(-.4, .3, 0))],
+    przekroj: () => [KE3.pos3.clone().addScaledVector(KIER_A, 8.6), KE3.pos3.clone()],
+    przekrojS: () => [KE3.pos3.clone().addScaledVector(KIER_A, 9.8), KE3.pos3.clone()],
+    przekrojD: () => [KE3.pos3.clone().addScaledVector(KIER_A, 11.5), KE3.pos3.clone()],
+    proces: () => { const b = new THREE.Box3().setFromPoints(FIN.kule.map(s => s.pos3)), c = b.getCenter(V(0, 0, 0)); return [c.clone().add(V(0, 19, 58)), c.clone().add(V(0, 2.2, -1))]; },
+    dzial: () => { const d = DZIALY['Zakupy']; return [V(d.x + 2, d.y + 9, d.z + 13), V(d.x + 1, d.y, d.z + .6)]; },
+    tech: () => [V(0, 58, 72), V(0, 0, 7)],
+    dane: () => [V(7, 52, 68), V(0, 0, 7)],
+    mac: () => [V(-34, 46, 128), V(8, 0, 4)],
+    punkt: () => { const m = miejsce(stan.kamP.k), o = stan.kamP.odl || 30; return [m.p.clone().add(V(o * .08, o * .72, o * .78)), m.p.clone()]; },
+    rozjazd: () => [V(-40, 22, 60), V(-18, 1, 2)],
+  };
+  const kam = { z: UJECIA.firma(), d: UJECIA.firma(), t0: 0, dl: 1, ox: 0, oy: 0, oxT: 0, oyT: 0, mx: 0, my: 0, mxT: 0, myT: 0 };
+  const lec = (nazwa, snap) => {
+    const [p, c] = UJECIA[nazwa](), klucz = nazwa + (nazwa === 'punkt' ? JSON.stringify(stan.kamP) : '');
+    if (kam.nazwa === klucz && !snap) return; kam.nazwa = klucz;
+    kam.z = [kam.pP ? kam.pP.clone() : p, kam.pC ? kam.pC.clone() : c]; kam.d = [p, c];
+    const dyst = kam.z[0].distanceTo(p); kam.t0 = performance.now(); kam.dl = snap ? 1 : Math.min(3400, 1700 + dyst * 22);
+    if (snap) kam.z = [p, c];
+  };
+  box.addEventListener('pointermove', e => { const r = box.getBoundingClientRect(); kam.mxT = (e.clientX - r.left) / r.width - .5; kam.myT = (e.clientY - r.top) / r.height - .5; });
+  box.addEventListener('pointerleave', () => { kam.mxT = kam.myT = 0; });
+
+  // ---------- stan sceny ----------
+  let stan = {}, wT = 0, w = 0, W = 1, H = 1;
+  const DOM = { widok: 'proc', fokus: null, kule: 'kompl', budowa: 9, daac: 0, linie: 0, zal: 0, sygnal: 0, e3: null, puls: 0, prz: null, et: [], kam: 'firma', ox: 0, oy: 0, dryf: .045, falaKol: 0, nitka: 1 };
+  const ustaw = (s, snap, opc = {}) => {
+    const now = performance.now();
+    stan = { ...DOM, ...s };
+    const proc = stan.widok === 'proc', f = stan.fokus;
+    wT = proc ? 0 : 1; if (snap) w = wT;
+    const poPlytach = Object.values(plyty).every(o => o.t === 0) ? 1500 : 0;   // firma dopiero się buduje — nitki i etapy po płytach
+    Object.entries(plyty).forEach(([n, o]) => {
+      const dim = !f || (f.takze || []).includes(n) ? 1 : f.lista ? (f.lista.includes(n) ? 1 : .32) : f.dz ? (n === f.dz ? 1 : .16) : (PROCESY.find(p => p.id === f.p).dzialy.includes(n) ? 1 : .16);
+      cel(o, proc && stan.budowa >= 2 ? dim : 0, o.i * 85, snap);
+    });
+    cel(relacje, proc && stan.budowa >= 3 ? (f ? .2 : 1) : 0, 200, snap);
+    PROCESY.forEach(p => {
+      const dim = !f ? 1 : f.lista ? (p.dzialy.some(x => f.lista.includes(x)) ? 1 : .22) : f.dz ? (p.dzialy.includes(f.dz) ? 1 : .05) : (p.id === f.p ? 1 : .05);
+      const wid = stan.budowa >= 5, op = p.pi * 38 + 250 + poPlytach;
+      cel(p.w, proc && wid ? dim * (f && p.id === f.p ? stan.nitka : 1) : 0, op, snap);
+      p.kule.forEach((s, i) => {
+        const nt = !wid || stan.widok === 'dane' ? 0 : !proc ? 1 : f && f.e != null && p.id === f.p ? (i === f.e ? 1 : .45) : Math.max(dim, .1);
+        if (s.t === 0 && nt > 0 && !snap) s.od = now + op + 350 + i * 150;
+        s.t = nt; if (snap) { s.a = nt; s.ob = nt > 0 ? 1 : 0; s.od = 0; }
+        const k = p === FIN && i === 2 && stan.e3 ? KOL[stan.e3] : stan.kule === 'nieznane' ? KOL.nz : stan.kule === 'aut' ? KOL_AUT[s.e.aut] : stan.kule === 'wyk' ? KOL_WYK[s.e.wyk] : KOL[s.e.kl];
+        if (k !== s.kolT) { s.kolT = k; s.kolOd = snap ? 0 : now + (stan.falaKol ? p.pi * 55 + i * 130 : 0); }
+        if (snap) s.kol.copy(k);
+        s.puls = p === FIN && i === 2 ? stan.puls : 0;
+      });
+    });
+    cel(zal, proc && stan.zal ? 1 : 0, 700, snap);
+    cel(tech, proc ? 0 : 1, 300, snap); cel(techN, stan.widok === 'tech' ? 1 : 0, 900, snap); cel(dane, stan.widok === 'dane' ? 1 : 0, 500, snap);
+    cel(daac, proc && stan.daac ? 1 : 0, 200, snap); cel(linie, proc && stan.linie ? 1 : 0, 900, snap);
+    cel(sygnal, proc && stan.sygnal ? 1 : 0, 1400, snap);
+    cel(mac, proc && stan.mac ? 1 : 0, 500, snap);
+    ustawZap(now, snap);
+    cel(kontakt, proc && stan.kontakt ? 1 : 0, 900, snap);
+    ustawPrz(now, snap, opc.opoznPrz || 0);
+    warstwa.classList.toggle('et-krotkie', !!stan.krotkie);
+    ludziki.forEach(l => { const on = !!stan.ludziki && proc; if (on && !l.on) l.t0 = snap ? now - 5000 : now + 300 + l.i * 170; l.on = on; if (snap) l.a = on ? 1 : 0; });
+    kam.oxT = stan.ox; kam.oyT = stan.oy; if (snap) { kam.ox = stan.ox; kam.oy = stan.oy; }
+    if (opc.kamSnap) { kam.ox = stan.ox; kam.oy = stan.oy; }
+    lec(stan.kam, snap || opc.kamSnap);
+  };
+
+  const rozmiar = () => {
+    W = box.clientWidth || 1; H = box.clientHeight || 1;
+    renderer.setSize(W, H, false); if (composer) { composer.setPixelRatio(DPR); composer.setSize(W, H); }
+    camera.aspect = W / H;
+  };
+  new ResizeObserver(rozmiar).observe(box); rozmiar();
+
+  // ---------- pętla ----------
+  const ease = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2, wyj = u => 1 - Math.pow(1 - u, 3);
+  const OS_Y = V(0, 1, 0), _p = V(0, 0, 0), _c = V(0, 0, 0), _o = V(0, 0, 0), _v = V(0, 0, 0), _os = V(0, 0, 0), _k = new THREE.Color();
+  let poprz = performance.now();
+  const klatka = now => {
+    requestAnimationFrame(klatka);
+    const dt = Math.min(.05, Math.max(.001, (now - poprz) / 1000)); poprz = now;
+    const k = 1 - Math.exp(-dt * 4.2), sek = now / 1000;
+    w += (wT - w) * (1 - Math.exp(-dt * 2.4));
+    const wE = ease(Math.min(1, Math.max(0, w)));
+
+    ludziki.forEach(l => {
+      const pl = plyty[l.n], t = now - l.t0, u = l.on ? Math.min(1, Math.max(0, t / SPADEK)) : 1;
+      l.a += ((l.on && t > 0 ? 1 : 0) - l.a) * (1 - Math.exp(-dt * (l.on ? 9 : 5)));
+      const tt = l.on ? (t - SPADEK / 2.75) / 1000 : -1;                       // czas od pierwszego dotknięcia płyty
+      pl.ug = tt > 0 ? -.42 * Math.exp(-3.2 * tt) * Math.cos(9 * tt) : 0;      // płyta ugina się i wraca
+      const zgniot = tt > 0 ? 1 - .28 * Math.exp(-6 * tt) * Math.cos(15 * tt) : 1 + .12 * (1 - u);
+      l.g.visible = l.a > .01; l.m.opacity = l.a;
+      l.g.position.set(l.x, l.d.y + .175 + pl.ug + WYS * (1 - odbicie(u)), l.z);
+      l.g.scale.set(1 + (1 - zgniot) * .6, zgniot, 1 + (1 - zgniot) * .6);
+      l.glowaPoz.set(l.x, l.g.position.y + 1.25, l.z);
+    });
+    wpisy.forEach(o => {
+      if (now >= o.od) { o.a += (o.t - o.a) * k; if (Math.abs(o.t - o.a) < .004) o.a = o.t; o.ob += ((o.t > 0 ? 1 : 0) - o.ob) * (1 - Math.exp(-dt * 2.6)); }
+      o.obj.visible = o.a > .008;
+      o.mats.forEach(([m, b]) => { m.opacity = b * o.a; });
+      if (o.plyta) o.obj.position.y = o.d.y - (1 - wyj(o.ob)) * 9 - (o === daac ? 0 : wE * 5) + (o.ug || 0);       // płyty wysuwają się z dołu; przy zmianie warstwy toną
+      if (o.rys != null) {                                                                                // nitka rysuje się od początku do końca
+        if (o.t > 0 && now >= o.od) o.rys = Math.min(1, o.rys + dt / 1.5); else if (o.a < .01) o.rys = 0;
+        o.obj.geometry.setDrawRange(0, Math.floor(wyj(o.rys) * o.seg) * 36);
+      }
+    });
+    grupaT.position.y = (1 - wyj(tech.ob)) * 12; grupaN.position.y = grupaT.position.y;
+    grupaD.position.y = grupaT.position.y; grupaD.scale.y = .001 + wyj(dane.ob);
+    znaczniki.forEach(z => {
+      if (now >= z.od) z.a += (z.t - z.a) * k;
+      z.g.visible = z.a > .01 && !!z.m; if (!z.g.visible) return;
+      const f = (sek * .7 + z.i * .13) % 1, y = z.m.p.y + (z.m.tech ? grupaT.position.y : 0);
+      z.g.position.set(z.m.p.x, y, z.m.p.z); z.g.scale.set(z.m.w, 1, z.m.d);
+      z.l2.scale.setScalar(1 + f * .22); z.mL.opacity = z.a * (.55 + .45 * Math.sin(sek * 3 + z.i)); z.mP.opacity = z.a * (.1 + .08 * Math.sin(sek * 3 + z.i));
+      z.poz.set(z.m.p.x, y + .4, z.m.p.z - z.m.d / 2);
+    });
+    grupaM.scale.setScalar(.9 + .1 * wyj(mac.ob)); mLed.opacity = mac.a * (.6 + .4 * Math.sin(sek * 2));
+    daac.mW.opacity = (.16 + .07 * Math.sin(sek * 1.6)) * daac.a;
+    agenci.forEach(a => { a.g.position.y = a.y0 + Math.sin(sek * 1.4 + a.i * 1.7) * .09; a.g.rotation.y = Math.sin(sek * .6 + a.i) * .35; const sk = AGENCI[a.i][2] * (a.i === 0 || a.i === 3 ? 1 + .35 * kontakt.a : 1 - .3 * kontakt.a); a.g.scale.setScalar(sk); });
+    // przekrój: kula etapu rośnie w dysk, segmenty dochodzą do swoich stanów
+    if (now >= przOd) { przA += (przT - przA) * (1 - Math.exp(-dt * 4)); if (Math.abs(przT - przA) < .004) przA = przT; }
+    grupaA.visible = przA > .01;
+    if (grupaA.visible) {
+      const tetno = .5 + .5 * Math.sin(sek * 4.5);
+      grupaA.scale.setScalar(.16 + .84 * wyj(przA)); tloA.material.opacity = .92 * przA; obwA.material.opacity = przA; obwA.material.color.copy(KE3.kol);
+      warA.forEach(wa => { wa.a += (wa.t - wa.a) * k; wa.m.opacity = przA * wa.a * .95; });
+      segA.forEach(o => {
+        if (o.nast && now >= o.od) nadajSt(o);
+        o.fill += (o.fillT - o.fill) * k; o.obw += (o.obwT - o.obw) * k; o.labA += (o.labT - o.labA) * k; o.mF.color.lerp(o.kolT, k);
+        o.mF.opacity = przA * o.fill * (o.st === 'prop' || o.st === 'spor' ? .55 + .45 * tetno : 1);
+        o.mO.opacity = przA * o.obw * (o.st === 'zm' ? .35 + .65 * tetno : 1); o.mL.opacity = o.mK.opacity = przA * o.labA * .8;
+      });
+    }
+    kule.forEach(s => {
+      if (now >= s.od) { s.a += (s.t - s.a) * k; s.ob += ((s.t > 0 ? 1 : 0) - s.ob) * (1 - Math.exp(-dt * 5)); }
+      if (now >= s.kolOd) s.kol.lerp(s.kolT, 1 - Math.exp(-dt * 3.2));
+      const tetno = s.puls ? .5 + .5 * Math.sin(sek * 4.2) : 0, oddech = 1 + .05 * Math.sin(sek * 1.3 + s.p.pi + s.i);
+      _k.copy(s.kol).multiplyScalar(1 + tetno * .45);
+      s.m.userData.kol.copy(_k); s.m.color.copy(s.kol).multiplyScalar(.28); s.m.emissive.copy(_k).multiplyScalar(.16 + tetno * .12);
+      s.m.opacity = s === KE3 ? s.a * (1 - przA) : s.a; s.mesh.visible = s.m.opacity > .01;
+      s.mesh.position.lerpVectors(s.pos3, s.posT, wE); s.mesh.position.y += Math.sin(Math.PI * wE) * (3 + (s.i % 3)) - (1 - wE) * (1 - wyj(plyty[s.e.dz].ob)) * 9;
+      s.mesh.scale.setScalar(Math.max(.001, wyj(Math.min(1, s.ob)) * oddech * (1 + tetno * .22)));
+    });
+    czastki.forEach(c => {
+      c.t = (c.t + c.v * dt + 1) % 1;
+      const a = c.wpis.a * (c.wpis.rys != null ? (c.t < c.wpis.rys ? 1 : 0) : 1);
+      c.sp.visible = a > .03; if (!c.sp.visible) return;
+      c.krzywa.getPointAt(c.t, c.sp.position);
+      if (c.wpis === dane || c.wpis === techN) c.sp.position.y += grupaT.position.y;
+      c.sp.material.opacity = a * (.55 + .45 * Math.sin(c.t * Math.PI));
+    });
+
+    // kamera: lot z wygładzeniem, powolny dryf w spoczynku, lekka paralaksa od myszy
+    const u = Math.min(1, (now - kam.t0) / kam.dl), e = ease(u);
+    _p.lerpVectors(kam.z[0], kam.d[0], e); _c.lerpVectors(kam.z[1], kam.d[1], e);
+    _p.y += Math.sin(Math.PI * e) * Math.min(10, kam.z[0].distanceTo(kam.d[0]) * .12);                   // lot łukiem, nie po prostej
+    kam.pP = (kam.pP || V(0, 0, 0)).copy(_p); kam.pC = (kam.pC || V(0, 0, 0)).copy(_c);
+    kam.mx += (kam.mxT - kam.mx) * (1 - Math.exp(-dt * 2)); kam.my += (kam.myT - kam.my) * (1 - Math.exp(-dt * 2));
+    _o.subVectors(_p, _c);
+    _o.applyAxisAngle(OS_Y, Math.sin(sek * .17) * stan.dryf - kam.mx * .09);
+    _os.crossVectors(_o, OS_Y).normalize(); _o.applyAxisAngle(_os, kam.my * .05 + Math.sin(sek * .11) * stan.dryf * .25);
+    camera.position.addVectors(_c, _o); camera.lookAt(_c);
+    kam.ox += (kam.oxT - kam.ox) * (1 - Math.exp(-dt * 2.2)); kam.oy += (kam.oyT - kam.oy) * (1 - Math.exp(-dt * 2.2));
+    camera.setViewOffset(W, H, -kam.ox * W, -kam.oy * H, W, H);
+
+    if (composer) composer.render(); else renderer.render(scene, camera);
+
+    etyk.forEach(l => {
+      let wid = (l.grupa === 'prz' ? przA > .3 : stan.et.includes(l.grupa)) && l.alfa() > .4;
+      if (wid) {
+        if (l.lok) grupaA.localToWorld(_v.copy(l.lok)); else _v.copy(l.poz);
+        if (l.grupa === 'programy') _v.y += grupaT.position.y;
+        _v.project(camera); wid = _v.z < 1 && Math.abs(_v.x) < 1.1 && Math.abs(_v.y) < 1.1;
+        if (wid) l.el.style.transform = `${l.tr || 'translate(-50%,-50%)'} translate(${((_v.x * .5 + .5) * W).toFixed(1)}px,${((-_v.y * .5 + .5) * H).toFixed(1)}px)`;
+      }
+      if (wid !== l.wid) { l.wid = wid; l.el.classList.toggle('wid', wid); }
+    });
+  };
+  ustaw({ budowa: 0 }, true);
+  requestAnimationFrame(klatka);
+  return { ustaw, ekranPrzekroju };
+})();
+
+// ===================== TREŚĆ LICZONA Z DANYCH =====================
+const ile = k => ETAPY.filter(x => x.e.kl === k).length;
+const liczba = (n, opis, kl = '') => `<div class="liczba ${kl}"><b>${n}</b><span>${opis}</span></div>`;
+
+const nazwaSD = id => TR.erd.find(x => x.id === id)?.n || id;
+const RWC = { R: 'czyta', W: 'zapisuje', C: 'tworzy' };
+const wiersz = (k, v, j) => `<div style="--j:${j}"><b>${esc(k)}</b><span>${v}</span></div>`;
+const pola = n => (TR.skl[n] || []).map(x => x.typ === 'tekst' ? esc(x.t) : x.typ === 'link' ? esc(x.t) : `${esc(x.k)}: ${esc(x.v)}`);
+const SK_DET = [
+  () => `<table><thead><tr><th>#</th><th>Krok</th><th>Program</th><th>Struktura danych</th></tr></thead><tbody>${TR.skl['Kroki'].map((k, j) => `<tr style="--j:${j}"><td class="mono muted">${k.nr}</td><td>${esc(k.kr || k.t)}<span class="kto">${esc(k.kto)}</span></td><td class="pr">${Object.keys(k.sys).map(esc).join('<br>')}</td><td class="da">${Object.entries(k.dane).map(([id, op]) => `${esc(nazwaSD(id))} <b>${RWC[op]}</b>`).join('<br>')}</td></tr>`).join('')}</tbody></table>`,
+  () => `<div class="sk-lista">${[['Warunki wstępne', pola('Warunki wstępne')[0]], ['Wejście', 'ERP › Akceptacje — ' + pola('Wejście').join(' · ')], ['Wyjście', pola('Wyjście').join(' · ') + ' → FIN-03 E4 Księgowanie'], ['Ślad (log)', pola('Ślad (log)').slice(0, 2).join('<br>')], ['Status sprawy', '<span class="etk">brak · przydatne, nie blokuje</span>']].map(([a, b], j) => wiersz(a, b, j)).join('')}</div>`,
+];
+const ODP = [['Kto to robi?', 'Kierownik budżetu akceptuje, agent składa pakiet'], ['W jakim programie?', 'ERP, ekran akceptacji'], ['Gdzie są dane?', 'ERP: Faktura opisana, Budżet MPK'], ['Co dalej?', 'Decyzja trafia do E4 Księgowanie']];
+$('#odp').innerHTML = ODP.map(([p, o]) => `<div class="wid"><b>${p}</b><span>${o}</span></div>`).join('');
+// Etap: Definicja — jedna warstwa i kroki z programami i strukturami danych
+$('#sk3-det').innerHTML = `<span class="lbl">Kroki · kto, w jakim programie, na jakich danych</span><div style="margin-top:6px">${SK_DET[0]()}</div>`;
+// Od wiedzy do AI — krok 1: Przebieg, krok 2: Delegowanie na AI jako lista do dopisania
+const DO_DOPISANIA = [['Agent', 'który agent obsługuje etap'], ['Autonomia per krok', 'które kroki robi AI, a które zostają u człowieka <span class="etk bad">wymagane</span>'], ['Uzupełnienia skilla', 'przykłady, format odpowiedzi, co robić przy błędach'], ['Guardrails', 'czego AI nie zrobi nigdy'], ['Metryki', 'jak mierzymy pracę AI — na później']];
+const odWiedzy = k => {
+  const st = $('#sk10-stan'); st.className = 'etk ' + (k === 2 ? 'accent' : 'ok'); st.textContent = k === 2 ? 'do delegowania: 4 składowe do dopisania' : 'Definicja + Przebieg';
+  $('#sk10-det').innerHTML = k === 1 ? `<span class="lbl">Przebieg · gdzie go widać w programach</span><div style="margin-top:6px">${SK_DET[1]()}</div>`
+    : `<span class="lbl">Delegowanie na AI · co trzeba dopisać</span><div class="sk-lista" style="margin-top:6px">${DO_DOPISANIA.map(([a, b], j) => wiersz(biz(a), b, j)).join('')}</div>`;
+};
+
+
+
+// 4 · poziomy
+const POZ = ['Etap', 'Proces', 'Dział', 'Firma'];
+$('#okruszki').innerHTML = POZ.map((n, i) => `${i ? '<i></i>' : ''}<button data-k="${i + 1}">${n}</button>`).join('');
+const zak = PROCESY.filter(p => p.dzialy.includes('Zakupy'));
+const POZIOM = [
+  () => `<h3><code>E3</code>Akceptacja</h3><div class="liczby">${liczba(WARSTWY_M[0].el.length, 'składowych Definicji', 'ok')}${liczba(TR.skl['Kroki'].length, 'kroków')}${liczba('Zakupy', 'dział etapu')}</div>`,
+  () => `<h3><code>FIN-03</code>${esc(FIN.n)}</h3><div class="liczby">${liczba(FIN.etapy.length, 'etapów')}${liczba(FIN.dzialy.length, 'działy: ' + FIN.trasa)}${liczba(ocenaP(FIN).pct + '%', 'kompletności', 'ok')}</div>`,
+  () => `<h3>Dział Zakupy</h3><div class="liczby">${liczba(zak.length, 'procesy przechodzą przez dział')}${liczba(zak.flatMap(p => p.etapy).filter(e => e.dz === 'Zakupy').length, 'etapów w dziale')}${liczba(zak.flatMap(p => p.etapy).filter(e => e.dz === 'Zakupy' && e.kl === 'bad').length, 'bez kompletu wymaganych', 'bad')}</div>`,
+  () => `<h3>Rejestr firmy</h3><div class="liczby">${liczba(Object.keys(DZIALY).length, 'działów')}${liczba(PROCESY.length, 'procesów')}${liczba(ETAPY.length, 'etapów')}${liczba(ile('ok'), 'komplet', 'ok')}${liczba(ile('warn'), 'brakuje ważnych', 'warn')}${liczba(ile('bad'), 'brakuje wymaganych', 'bad')}</div>`,
+];
+
+// 5 · trzy rzeczywistości
+const wyspy = Object.values(PROG).filter(t => t.wyspa).map(t => t.n);
+const RZECZ = [
+  () => liczba(PROCESY.length, 'procesów') + liczba(PROCESY.filter(p => p.dzialy.length > 1).length, 'przechodzi między działami', 'acc') + liczba(PRZEPLYWY.length, 'zależności przez dane'),
+  () => liczba(Object.keys(PROG).length, 'programów') + liczba(SKOKI, 'przeskoków między programami', 'acc') + liczba(wyspy.length, 'wyspy: ' + wyspy.join(', '), 'bad'),
+  () => liczba(Object.keys(PROG).reduce((s, n) => s + (STRUKTURY[n] || []).length, 0), 'struktur danych') + liczba(INTEGRACJE.filter(x => x[2] !== 'ręcznie').length, 'integracji automatycznych') + liczba(INTEGRACJE.filter(x => x[2] === 'ręcznie').length, 'przepisywanych ręcznie', 'warn'),
+];
+
+// kto wykonuje etapy · gotowość na AI — cztery poziomy nazwane po ludzku (kody A0–A3 zostają w danych)
+const POZIOMY_AI = ['Bez AI (człowiek)', 'AI jako wsparcie', 'AI jako pracownik pod kontrolą', 'AI jako pracownik samodzielny'];
+const AUT_KL = ['--muted', '--ok', '--warn', '--accent'], autIle = [0, 1, 2, 3].map(a => ETAPY.filter(x => x.e.aut === a).length), autMax = Math.max(...autIle);
+$('#aut').innerHTML = POZIOMY_AI.map((n, a) => `<div class="w1"><i class="kol" style="--kc:var(${AUT_KL[a]})"></i><span>${n}</span><span class="pas"><i style="--kc:var(${AUT_KL[a]});--sz:${Math.round(autIle[a] / autMax * 100)}%"></i></span><span class="n">${autIle[a]}</span></div>`).join('');
+// gotowy na AI = ma wszystkie wymagane i ważne składowe Definicji i Przebiegu
+const WIEDZA_MS = [...WARSTWY_M[0].el, ...WARSTWY_M[1].el].filter(n => 'MS'.includes(PRIO_M[n]));
+const gotowe = ETAPY.filter(x => !WIEDZA_MS.some(n => x.e.brak.includes(n) || x.e.nd.includes(n)));
+$('#gotowe').innerHTML = `<b>${gotowe.length}</b><span>z ${ETAPY.length} etapów ma dość informacji, żeby zacząć je realizować z AI</span>`;
+$('#blok').innerHTML = [[ile('bad'), 'etapów nie ma kompletu informacji wymaganych — tu najpierw zbieramy wiedzę', 'bad'], [gotowe.filter(x => x.e.aut === 0).length, 'gotowych etapów robi dziś człowiek bez AI — pierwsi kandydaci', 'ok']]
+  .map(([n, t, kl]) => `<div><b class="etk ${kl}" style="text-align:center">${n}</b><span>${t}</span></div>`).join('');
+// kto dziś wykonuje pracę: człowiek · człowiek z programem · asystent AI · agent
+const WYK = [['czlowiek', 'Człowiek', 'ręcznie: mail, arkusz, pliki', '--ink-2'], ['tech', 'Człowiek z programem', 'w systemie dziedzinowym, np. ERP', '--p-niebieski'], ['asystent', 'Człowiek z asystentem AI', 'AI przygotowuje, człowiek wykonuje', '--p-brzoskwinia'], ['agent', 'Agent AI', 'AI wykonuje, człowiek pilnuje', '--accent']];
+const wykIle = WYK.map(([k]) => ETAPY.filter(x => x.e.wyk === k).length), wykMax = Math.max(...wykIle);
+$('#wyk').innerHTML = WYK.map(([k, n, o, t], i) => `<div class="w1 wysoki"><i class="kol" style="--kc:var(${t})"></i><span>${n}<small>${o}</small></span><span class="pas"><i style="--kc:var(${t});--sz:${Math.round(wykIle[i] / wykMax * 100)}%"></i></span><span class="n">${wykIle[i]}</span></div>`).join('');
+
+// onboarding
+const ONB = [['Firma', 'czym się zajmuje, co sprzedaje i komu'], ['Działy', 'propozycja typowa dla branży, Ty poprawiasz'], ['Struktura', 'zarządzanie, łańcuch wartości, wsparcie'], ['Szefowie działów', 'kto kieruje każdym działem'], ['Pierwsza mapa', 'szkice 2–3 procesów na dział'], ['Rozmowy', 'braki: najpierw wymagane, potem ważne']];
+$('#kroki-on').innerHTML = ONB.map(([n, o], i) => `<div class="kr-on" data-k="${i + 1}"><i>0${i + 1}</i><b>${n}</b><span>${o}</span></div>`).join('');
+
+// punkty zapalne — wszystkie liczby liczone z danych (dane przykładowe)
+const DZ_N = Object.keys(DZIALY), etDz = n => ETAPY.filter(x => x.e.dz === n);
+const rank = (f, ile = 3) => DZ_N.map(n => ({ n, v: f(etDz(n)), ile: etDz(n).length })).sort((a, b) => b.v - a.v || b.ile - a.ile).slice(0, ile);
+const ZAP = {
+  bezWym: rank(e => e.filter(x => x.e.kl === 'bad').length),                                         // działy z największą liczbą etapów bez kompletu wymaganych informacji
+  prog: Object.values(PROG).map(t => ({ n: t.n, et: ETAPY.filter(x => x.e.sys.includes(t.n)).length, pr: PROCESY.filter(p => p.etapy.some(e => e.sys.includes(t.n))).length })).sort((a, b) => b.et - a.et)[0],
+  wyspy: Object.values(PROG).filter(t => t.wyspa).map(t => ({ n: t.n, et: ETAPY.filter(x => x.e.sys.includes(t.n)).length })),
+  reczne: Object.entries(INTEGRACJE.filter(x => x[2] === 'ręcznie').reduce((m, [a, b]) => ((m[a] = m[a] || []).push(b), m), {})).map(([zr, cele]) => ({ zr, cele })).sort((a, b) => b.cele.length - a.cele.length),
+  bezAgenta: DZ_N.filter(n => !etDz(n).some(x => x.e.wyk === 'agent')),
+  bezAI: rank(e => e.filter(x => x.e.aut === 0).length, 1)[0],
+  start: rank(e => e.filter(x => x.e.aut === 0 && gotowe.includes(x)).length),                         // dużo pracy bez AI + etapy gotowe na AI
+};
+const strN = k => k.split('/')[1], strP = k => k.split('/')[0];
+const zw = (l, t, kl = 'bad') => `<div class="zap-w"><b class="${kl}">${l}</b><span>${t}</span></div>`;
+const zapPanel = (id, tytul, wiersze, wniosek) => { $('#' + id + '-panel').innerHTML = `<span class="lbl">${tytul}</span><div class="zap-l">${wiersze}</div><p class="zap-wn">${wniosek}</p><small class="zap-st">Dane przykładowe. Na Twojej mapie liczby policzą się same.</small>`; };
+const lz = (n, t) => `<b>${n}</b><span>${t}</span>`;
+const ZAP_ST = {
+  zap1: k => {
+    zapPanel('zap1', 'Etapy bez kompletu wymaganych informacji', ZAP.bezWym.map((d, i) => zw(d.v, `<strong>${esc(d.n)}</strong> — na ${d.ile} etapów w dziale`, k === 2 && i ? '' : 'bad')).join(''), k === 1 ? `W tych trzech działach jest ${ZAP.bezWym.reduce((a, d) => a + d.v, 0)} z ${ile('bad')} takich etapów w całej firmie. <strong>Tu najpierw porządkujemy, zanim cokolwiek oddamy AI.</strong>` : `<strong>${esc(ZAP.bezWym[0].n)}</strong>: ponad połowa etapów działa tylko dlatego, że ktoś pamięta, jak to się robi.`);
+    const zn = ZAP.bezWym.map(d => ({ k: { dz: d.n }, kol: 'bad', html: lz(d.v, 'etapów bez wymaganych informacji') }));
+    return k === 1 ? { kam: 'firmaL', fokus: { lista: ZAP.bezWym.map(d => d.n) }, zapal: zn, et: ['dzialy', 'zap'], ox: -.12, oy: .12 }
+      : { kam: 'punkt', kamP: { k: { dz: ZAP.bezWym[0].n }, odl: 30 }, fokus: { lista: [ZAP.bezWym[0].n] }, zapal: zn.slice(0, 1), et: ['dzialy', 'zap'], ox: -.12, oy: .02 };
+  },
+  zap2: k => {
+    const r = ZAP.reczne[0], wszR = ZAP.reczne.reduce((a, x) => a + x.cele.length, 0);
+    if (k === 1) zapPanel('zap2', 'Zależność od jednego programu', zw(ZAP.prog.et, `etapów korzysta z programu <strong>${esc(ZAP.prog.n)}</strong> — to ${Math.round(ZAP.prog.et / ETAPY.length * 100)}% wszystkich`, 'acc') + zw(ZAP.prog.pr, `z ${PROCESY.length} procesów przechodzi przez ten program`, 'acc'), '<strong>Tym programem trzeba się zaopiekować:</strong> plan na awarię, właściciel, kontrola zmian.');
+    if (k === 2) zapPanel('zap2', 'Wyspy — programy bez połączeń', ZAP.wyspy.map(w => zw(w.et, `etapów pracuje w programie <strong>${esc(w.n)}</strong>`)).join(''), `<strong>${ZAP.wyspy.length} programy warto połączyć z resztą albo zastąpić.</strong> Dziś dane wchodzą do nich i wychodzą ręcznie.`);
+    if (k === 3) zapPanel('zap2', 'Dane przepisywane ręcznie', zw(r.cele.length, `miejsca, do których ręcznie trafiają <strong>${esc(strN(r.zr))}</strong> z programu ${esc(strP(r.zr))}: ${r.cele.map(c => esc(strP(c))).join(', ')}`, 'warn') + zw(wszR, 'ręcznych przepisań w całej firmie', 'warn'), '<strong>Kandydat do przebudowy:</strong> jedno źródło danych i automatyczne połączenia zamiast przepisywania.');
+    return [{ widok: 'tech', kam: 'punkt', kamP: { k: { prog: ZAP.prog.n }, odl: 34 }, zapal: [{ k: { prog: ZAP.prog.n }, kol: 'acc', html: lz(ZAP.prog.et, 'etapów w jednym programie') }], et: ['programy', 'zap'], ox: -.12 },
+      { widok: 'tech', kam: 'tech', zapal: ZAP.wyspy.map(w => ({ k: { prog: w.n }, kol: 'bad', html: lz(w.et, 'etapów na wyspie') })), et: ['programy', 'zap'], ox: -.08, oy: .06 },
+      { widok: 'dane', kam: 'punkt', kamP: { k: { prog: strP(r.zr) }, odl: 40 }, zapal: [{ k: { str: r.zr }, kol: 'warn', html: lz(r.cele.length, 'ręczne przepisania') }, ...r.cele.map(c => ({ k: { prog: strP(c) }, kol: 'warn', html: `<span>${esc(strP(c))} · kopia ręczna</span>` }))], et: ['programy', 'zap'], ox: -.12, oy: .04 }][k - 1];
+  },
+  zap3: k => {
+    const s0 = ZAP.start.filter(d => d.v > 0);
+    if (k === 1) zapPanel('zap3', 'Działy bez żadnego agenta AI', zw(ZAP.bezAgenta.length, `z ${DZ_N.length} działów: ${ZAP.bezAgenta.map(esc).join(', ')}`), 'W tych działach każdy etap wykonuje człowiek, czasem z asystentem. <strong>Tu AI jeszcze nie pracuje samodzielnie.</strong>');
+    if (k === 2) zapPanel('zap3', 'Najwięcej pracy bez AI', zw(ZAP.bezAI.v, `z ${ZAP.bezAI.ile} etapów w dziale <strong>${esc(ZAP.bezAI.n)}</strong> ludzie wykonują bez wsparcia AI`, 'warn'), '<strong>Największy zapas godzin do odzyskania</strong> — o ile wiedza o tych etapach jest spisana.');
+    if (k === 3) zapPanel('zap3', 'Od czego zacząć', s0.map((d, i) => zw(i + 1, `<strong>${esc(d.n)}</strong> — ${d.v} ${odm(d.v, 'etap', 'etapy', 'etapów')} bez AI, o których wiemy dość, żeby zacząć`, 'ok')).join(''), '<strong>Wniosek dla zarządu:</strong> zaczynamy tam, gdzie pracy bez AI jest dużo, a procesy są już uporządkowane.');
+    return [{ kam: 'firmaL', kule: 'wyk', fokus: { lista: ZAP.bezAgenta }, zapal: ZAP.bezAgenta.map(n => ({ k: { dz: n }, kol: 'bad', html: '<span>bez agenta AI</span>' })), et: ['dzialy', 'zap'], ox: -.12, oy: .12 },
+      { kam: 'punkt', kamP: { k: { dz: ZAP.bezAI.n }, odl: 30 }, kule: 'aut', fokus: { lista: [ZAP.bezAI.n] }, zapal: [{ k: { dz: ZAP.bezAI.n }, kol: 'warn', html: lz(ZAP.bezAI.v, 'etapów bez AI') }], et: ['dzialy', 'zap'], ox: -.12, oy: .02 },
+      { kam: 'firmaL', kule: 'aut', fokus: { lista: s0.map(d => d.n) }, zapal: s0.map((d, i) => ({ k: { dz: d.n }, kol: 'ok', html: lz('#' + (i + 1), 'od czego zacząć') })), et: ['dzialy', 'zap'], ox: -.12, oy: .12 }][k - 1];
+  },
+};
+
+// sprzęt
+$('#prywatnosc').textContent = PRYWATNOSC;
+// CTA
+$('#cta-miejsce').innerHTML = CTA_URL ? `<a class="cta" href="${esc(CTA_URL)}">Zgłoś firmę do testów →</a>` : '<span class="cta">Zgłoś firmę do testów →</span>';
+
+// ===================== SLAJDY: stan sceny dla każdego kroku =====================
+const F = { p: 'FIN-03' }, FE = { p: 'FIN-03', e: 2 };
+const STANY = {
+  tytul: () => ({ kam: 'tytul', dryf: .12, zal: 1, oy: .2 }),
+  dlakogo: () => ({ kam: 'firma', zal: 1, et: ['dzialy'], ox: .02, oy: -.12, dryf: .09 }),
+  problem: () => ({ kam: 'dzial', fokus: { dz: 'Zakupy' }, kule: 'nieznane', e3: 'bad', puls: 1 }),
+  definicja: () => ({ kam: 'przekroj', fokus: FE, dryf: .04, nitka: .15, kule: 'nieznane', e3: 'ok', prz: { w: 1 }, ox: -.2, oy: .01 }),
+  zoom: k => [{ kam: 'przekroj', fokus: FE, dryf: .04, nitka: .15, prz: { w: 1 }, ox: .14, oy: -.03 }, { kam: 'proces', fokus: F, et: ['etapy', 'dzialy'], krotkie: 1 }, { kam: 'dzial', fokus: { dz: 'Zakupy' }, et: ['dzialy'] }, { kam: 'firma', et: ['dzialy'], ox: .05, oy: -.05 }][k - 1],
+  wykonawcy: () => ({ kam: 'firmaL', kule: 'wyk', falaKol: 1, et: ['dzialy'], ox: -.12, oy: .04 }),
+  rzecz: k => [{ kam: 'firma', zal: 1, et: ['dzialy'], ox: .05, oy: -.05 }, { widok: 'tech', kam: 'tech', et: ['programy'], ox: .05, oy: .09 }, { widok: 'dane', kam: 'dane', et: ['programy'], ox: .05, oy: .09 }][k - 1],
+  apd: () => ({ kam: 'daac', daac: 1, linie: 1, et: ['dzialy', 'daac', 'agenci'], ox: -.13, oy: .1 }),
+  ludzie: () => ({ kam: 'firmaD', daac: 1, linie: 0, ludziki: 1, kontakt: 1, et: ['daac', 'agenci'], ox: .1, oy: -.1, dryf: .08 }),
+  rozjazdy: () => ({ kam: 'przekroj', fokus: FE, dryf: .04, nitka: .15, e3: 'warn', puls: 1, prz: { w: 1, spor: ['Kroki', 'Zarządzanie ryzykiem'] }, ox: -.25, oy: .07 }),
+  wersje: () => ({ kam: 'przekrojD', fokus: FE, dryf: .04, nitka: .15, prz: { w: 1, zm: ['Kroki', 'Role', 'Podstawy prawne'] }, ox: .1, oy: -.2 }),
+  agent: () => ({ kam: 'firmaD', daac: 1, linie: 1, et: ['daac'], ox: -.16, oy: -.04, dryf: .09 }),
+  odwiedzy: k => { odWiedzy(k); return { kam: 'przekrojS', fokus: FE, dryf: .04, nitka: .15, e3: k === 2 ? 'warn' : 'ok', puls: k === 2 ? 1 : 0, prz: { w: k + 1, del: k === 2 ? 'todo' : null }, ox: -.14, oy: .03 }; },
+  przekroj: k => ({ kam: 'przekrojS', fokus: FE, dryf: .04, nitka: .15, e3: k === 3 ? 'ok' : 'warn', puls: k === 3 ? 0 : 1, prz: { w: 3, del: ['todo', 'prop', 'on'][k - 1] }, ox: -.14, oy: .05 }),
+  gotowosc: () => ({ kam: 'firmaL', kule: 'aut', falaKol: 1, et: ['dzialy'], ox: -.12, oy: .04 }),
+  zap1: k => ZAP_ST.zap1(k), zap2: k => ZAP_ST.zap2(k), zap3: k => ZAP_ST.zap3(k),
+  sprzet: () => ({ kam: 'mac', mac: 1, et: ['mac'], ox: .04, oy: -.04, dryf: .1 }),
+  start: k => ({ kam: k < 2 ? 'tytul' : 'firma', budowa: k, kule: k < 6 ? 'nieznane' : 'kompl', falaKol: 1, ludziki: k >= 4, et: k === 4 ? ['dzialy', 'szefowie'] : k >= 2 ? ['dzialy'] : [], ox: .1, oy: .05 }),
+  cta: () => ({ kam: 'firmaD', daac: 1, linie: 1, zal: 1, dryf: .14, oy: .1 }),
+};
+// ===================== WIDOK DZIAŁU (z aplikacji): procesy i etapy działu jako tory =====================
+const WD = $('#wd'); let wdKlucz = '', wdCzas = 0, wdCzas2 = 0;
+const WDS = { problem: () => ({ dz: 'Zakupy', tryb: 'problem' }), zoom: k => k === 3 ? { dz: 'Zakupy', tryb: 'norm' } : null };
+const PYT_WD = ['Gdzie są dane?', 'Kto to robi?', 'W jakim programie?', 'Co dalej?'].map((t, i) => `<span class="wd-pyt q${i + 1}">${t}</span>`).join('');
+const budujWd = (n, tryb) => {
+  const d = DZIALY[n], pr = procesyDzialu(n), problem = tryb === 'problem', KS = { ok: 'var(--ok)', warn: 'var(--warn)', bad: 'var(--danger)', nz: 'var(--muted)' }, TC = 'var(--tc)';
+  const kula = (kl, attr = '') => `<span class="wd-kula ${kl}" ${attr}></span>`;
+  const strz = (ca, cb) => `<span class="wd-strz" style="--ca:${ca};--cb:${cb}"><i class="wd-p"></i></span>`;
+  const konc = (kier, etapy) => `<span class="wd-konc ${kier}"><b>${kier === 'we' ? '← ' : kier === 'wy' ? '→ ' : '⇄ '}${[...new Set(etapy.map(e => e.dz))].map(esc).join(' → ')}</b><em>${etapy.map(e => esc(e.n)).join(' · ')}</em></span>`;
+  const wiersz = p => {
+    const idx = p.etapy.map((e, i) => e.dz === n ? i : -1).filter(i => i >= 0), pierw = idx[0], ost = idx[idx.length - 1], o = ocenaP(p);
+    let h = pierw > 0 ? konc('we', [p.etapy[pierw - 1]]) : '<span class="wd-start"></span>', poprz = TC;
+    idx.forEach((i, k) => {
+      const e = p.etapy[i], e3 = p === FIN && i === 2, kl = problem ? (e3 ? 'bad' : 'nz') : e.kl;
+      if (k > 0 && i - idx[k - 1] > 1) { h += strz(poprz, TC) + konc('mid', p.etapy.slice(idx[k - 1] + 1, i)); poprz = TC; }   // proces wychodzi do innego działu i wraca
+      h += strz(poprz, KS[kl]) + `<div class="wd-etap">${kula(kl + (problem && e3 ? ' puls' : ''), `data-k="${p.id}#${i}"`)}<b>${esc(e.n)}</b><small>${problem ? (e3 ? '<span class="wd-urlop">Kierownik budżetu · urlop</span>' : 'nie spisane') : `${esc(e.rola)} · ${esc(e.sys[0])} · ${e.pct}%`}</small>${problem && e3 ? PYT_WD : ''}</div>`;
+      poprz = KS[kl];
+    });
+    h += strz(poprz, TC) + (ost < p.etapy.length - 1 ? konc('wy', [p.etapy[ost + 1]]) : '<span class="wd-koniec"></span>');
+    return `<div class="wd-wiersz"><div class="wd-nazwa"><span class="wd-st ${problem ? '' : o.kl}"></span><b>${esc(p.n)}</b><small>${p.id} · ${esc(p.wl)}${problem ? '' : ` · ${o.pct}%`}</small></div><div class="wd-tor">${h}</div></div>`;
+  };
+  const etIle = pr.reduce((a, p) => a + p.etapy.filter(e => e.dz === n).length, 0);
+  WD.style.setProperty('--tc', `var(${POZIOMY[d.poz][1]})`);
+  WD.innerHTML = `<div class="wd-tlo"></div><header class="wd-gora"><span class="wd-kick">Dział · ${esc(POZIOMY[d.poz][0].toLowerCase())}</span><h2>${esc(n)}</h2>
+    <span class="wd-meta">${pr.length} ${odm(pr.length, 'proces', 'procesy', 'procesów')} · ${etIle} ${odm(etIle, 'etap', 'etapy', 'etapów')} w dziale</span>
+    <div class="wd-leg">${problem ? `<span>${kula('nz')}nie spisane</span><span>${kula('bad')}stoi</span>` : `<span>${kula('ok')}komplet</span><span>${kula('warn')}brakuje ważnych</span><span>${kula('bad')}brakuje wymaganych</span>`}<span><b class="wd-leg-k">⇄</b>krok w innym dziale</span></div></header>
+    <div class="wd-lista">${pr.map(wiersz).join('')}</div>`;
+};
+const ustawWd = (conf, snap) => {
+  const klucz = conf ? conf.dz + '/' + conf.tryb : '';
+  if (klucz === wdKlucz) return;
+  wdKlucz = klucz; clearTimeout(wdCzas); clearTimeout(wdCzas2);
+  if (!conf) { WD.classList.remove('wejscie'); wdCzas = setTimeout(() => { WD.hidden = true; WD.innerHTML = ''; }, 450); return; }
+  const otworz = () => { WD.style.cssText = ''; WD.className = 'wd'; budujWd(conf.dz, conf.tryb); WD.hidden = false; WD.getBoundingClientRect(); WD.classList.add('wejscie'); };
+  if (snap || !WD.hidden) otworz(); else wdCzas = setTimeout(otworz, 1150);   // najpierw kamera dolatuje nad dział, potem otwiera się widok
+};
+// wejście w etap jak w aplikacji: cały widok działu skaluje się wokół kuli etapu, aż kula stanie w miejscu przekroju i urośnie do jego rozmiaru
+const wciagnij = () => {
+  const kula = WD.querySelector('[data-k="FIN-03#2"]'), LOT = 650, cel = Scena.ekranPrzekroju();
+  wdKlucz = ''; clearTimeout(wdCzas); clearTimeout(wdCzas2);
+  const rw = WD.getBoundingClientRect(), rk = kula.getBoundingClientRect(), ox = rk.left + rk.width / 2 - rw.left, oy = rk.top + rk.height / 2 - rw.top;
+  WD.style.transformOrigin = `${ox}px ${oy}px`; WD.style.transition = `transform ${LOT}ms cubic-bezier(.55,0,.25,1)`; WD.getBoundingClientRect();
+  WD.style.transform = `translate(${cel.x - ox}px,${cel.y - oy}px) scale(${cel.r * 2 / rk.width})`;
+  kula.classList.add('wciaga'); kula.closest('.wd-etap').classList.add('z-et'); kula.closest('.wd-wiersz').classList.add('z-kula'); WD.classList.add('do-etapu');
+  wdCzas2 = setTimeout(() => WD.classList.add('do-etapu-koniec'), LOT + 120);
+  wdCzas = setTimeout(() => { WD.hidden = true; WD.innerHTML = ''; WD.className = 'wd'; WD.style.cssText = ''; }, LOT + 700);
+};
+
+const sekcje = $$('.slajd');
+const SLAJDY = sekcje.map(s => ({ id: s.dataset.id, stan: STANY[s.dataset.id], kroki: +s.dataset.kroki || 1, t: s.dataset.t }));
+const nrSlajdu = id => SLAJDY.findIndex(x => x.id === id) + 1;
+$('#menu').innerHTML = SLAJDY.map((s, i) => `<a data-n="${i + 1}" href="#${i + 1}"><span class="nr">${String(i + 1).padStart(2, '0')}</span><span class="tyt">${esc(s.t)}</span></a>`).join('');
+$('#ile').textContent = SLAJDY.length;
+
+let nr = 0, krok = 0, wahadlo = 0;
+const pokaz = (n, k = 1, snap = false) => {
+  n = Math.max(1, Math.min(SLAJDY.length, n)); const sl = SLAJDY[n - 1]; k = Math.max(1, Math.min(sl.kroki, k));
+  if (n === nr && k === krok) return;
+  nr = n; krok = k;
+  sekcje.forEach((s, i) => s.classList.toggle('akt', i === n - 1));
+  const sek = sekcje[n - 1];
+  $$('[data-krok]', sek).forEach(el => el.classList.toggle('wid', k >= +el.dataset.krok));
+  $$('[data-tylko]', sek).forEach(el => el.classList.toggle('wid', k === +el.dataset.tylko));
+  if (sl.id === 'zoom') { $$('#okruszki button').forEach((b, i) => { b.classList.toggle('teraz', i === k - 1); b.classList.toggle('byl', i < k - 1); }); $('#poziom').innerHTML = POZIOM[k - 1](); }
+  if (sl.id === 'rzecz') { $$('#rzecz button').forEach((b, i) => b.setAttribute('aria-selected', i === k - 1)); $('#rzecz-liczby').innerHTML = RZECZ[k - 1](); }
+  if (sl.id === 'start') $$('.kr-on').forEach((el, i) => { el.classList.toggle('teraz', i === k - 1); el.classList.toggle('byl', i < k - 1); });
+  const st = sl.stan(k), wdN = WDS[sl.id] ? WDS[sl.id](k) : null;
+  const wciag = !snap && !wdN && st.prz && wdKlucz && !WD.hidden && WD.querySelector('[data-k="FIN-03#2"]');
+  Scena.ustaw(st, snap, wciag ? { kamSnap: true, opoznPrz: 480 } : {});
+  if (wciag) wciagnij(); else ustawWd(wdN, snap);
+  clearInterval(wahadlo); $('#dla-coo').classList.add('teraz'); $('#dla-cto').classList.remove('teraz');
+  if (sl.id === 'dlakogo') {
+    let tech = false;
+    wahadlo = setInterval(() => {
+      tech = !tech;
+      Scena.ustaw({ ...sl.stan(1), ...(tech ? { widok: 'tech', kam: 'tech', zal: 0, et: ['programy'], oy: .08 } : {}) });
+      $('#dla-coo').classList.toggle('teraz', !tech); $('#dla-cto').classList.toggle('teraz', tech);
+    }, 4200);
+  }
+  $$('#menu a').forEach((a, i) => { a.toggleAttribute('aria-current', false); if (i === n - 1) a.setAttribute('aria-current', 'true'); a.classList.toggle('byl', i < n - 1); });
+  $('#nr').textContent = n;
+  $('#kropki').innerHTML = sl.kroki > 1 ? Array.from({ length: sl.kroki }, (_, i) => `<i class="${i < k ? 'jest' : ''} ${i === k - 1 ? 'teraz' : ''}"></i>`).join('') : '';
+  $('#postep').style.width = ((n - 1 + k / sl.kroki) / SLAJDY.length * 100).toFixed(1) + '%';
+  $('#wstecz').disabled = n === 1 && k === 1; $('#dalej').disabled = n === SLAJDY.length && k === sl.kroki;
+  const h = '#' + n + (k > 1 ? '.' + k : ''); if (location.hash !== h) history.replaceState(null, '', h);
+};
+const dalej = () => krok < SLAJDY[nr - 1].kroki ? pokaz(nr, krok + 1) : pokaz(nr + 1, 1);
+const wstecz = () => krok > 1 ? pokaz(nr, krok - 1) : nr > 1 ? pokaz(nr - 1, SLAJDY[nr - 2].kroki) : null;
+const zHasha = snap => { const m = /^#(\d+)(?:\.(\d+))?$/.exec(location.hash); pokaz(m ? +m[1] : 1, m && m[2] ? +m[2] : 1, snap); };
+
+$('#dalej').addEventListener('click', dalej); $('#wstecz').addEventListener('click', wstecz);
+$('#menu').addEventListener('click', e => { const a = e.target.closest('a'); if (a) { e.preventDefault(); pokaz(+a.dataset.n, 1); } });
+$('#okruszki').addEventListener('click', e => { const b = e.target.closest('button'); if (b) pokaz(nrSlajdu('zoom'), +b.dataset.k); });
+$('#rzecz').addEventListener('click', e => { const b = e.target.closest('button'); if (b) pokaz(nrSlajdu('rzecz'), +b.dataset.k); });
+$('#kroki-on').addEventListener('click', e => { const b = e.target.closest('.kr-on'); if (b) pokaz(nrSlajdu('start'), +b.dataset.k); });
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (['ArrowRight', 'PageDown', ' ', 'Enter'].includes(e.key)) { e.preventDefault(); dalej(); }
+  else if (['ArrowLeft', 'PageUp', 'Backspace'].includes(e.key)) { e.preventDefault(); wstecz(); }
+  else if (e.key === 'Home') pokaz(1); else if (e.key === 'End') pokaz(SLAJDY.length);
+});
+addEventListener('hashchange', () => zHasha(false));
+// start: z numerem w adresie — od razu gotowy kadr; bez numeru — firma buduje się na oczach (płyty, nitki, etapy)
+if (location.hash) zHasha(true); else pokaz(1, 1, false);
+})();
+</script>
+</body>
+</html>
